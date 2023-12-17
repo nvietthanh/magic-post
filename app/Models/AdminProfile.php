@@ -26,4 +26,14 @@ class AdminProfile extends Model
     {
         return $this->hasOne(Admin::class, 'id', 'admin_id');
     }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'id', 'district_id');
+    }
+
+    public function transactionPoint()
+    {
+        return $this->belongsTo(TransactionPoint::class, 'district_id', 'district_id');
+    }
 }

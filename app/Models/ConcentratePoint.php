@@ -17,4 +17,9 @@ class ConcentratePoint extends Model
     {
         return $this->hasOne(District::class, 'id', 'district_id');
     }
+
+    public function adminProfiles()
+    {
+        return $this->hasMany(AdminProfile::class, 'concentrate_point_id', 'id');
+    }
 }

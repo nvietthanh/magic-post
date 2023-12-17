@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('reason_for_refusal')->nullable();
             $table->string('note')->nullable();            
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

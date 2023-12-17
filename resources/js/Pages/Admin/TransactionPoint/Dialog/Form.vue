@@ -9,7 +9,7 @@
                 {{ title }}
             </div>
         </template>
-        <div class="overflow-scroll">
+        <div v-loading="loading">
             <el-form ref="form" :model="formData" :rules="rules" label-position="top">
                 <el-form-item label="Tên điểm giao dịch" class="w-full" prop="name"
                     :error="getError('name')" :inline-message="hasError('name')">
@@ -20,7 +20,7 @@
                         :error="getError('province_id')" :inline-message="hasError('province_id')">
                         <el-select v-model="formData.province_id" class="w-full"
                             placeholder="Chọn thành phố"
-                            @change="getDistrict"
+                            @change="changeProvince"
                         >
                             <el-option 
                                 v-for="item in provinces" 
@@ -34,6 +34,33 @@
                             <el-option 
                                 v-for="item in districts" 
                                 :key="item.id" :label="item.name" :value="item.id" 
+                            />
+                        </el-select>
+                    </el-form-item>
+                </div>
+                <el-form-item label="Địa chỉ" prop="address"
+                    :error="getError('address')" :inline-message="hasError('address')">
+                    <el-input type="textarea" v-model="formData.address" 
+                        placeholder="Nhập địa chỉ cụ thể  (Số nhà, ngõ, thôn, xã/phường)" />
+                </el-form-item>
+                <div class="flex gap-[32px]">
+                    <el-form-item label="Trưởng điểm giao dịch" class="w-full" prop="admin_head_id"
+                        :error="getError('admin_head_id')" :inline-message="hasError('admin_head_id')">
+                        <el-select v-model="formData.admin_head_id" class="w-full"
+                            placeholder="Chọn trưởng nhân viên"
+                        >
+                            <el-option 
+                                v-for="item in headAdmins" 
+                                :key="item.id" :label="item.admin_profile.full_name" :value="item.id" 
+                            />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="Chọn nhân viên" class="w-full" prop="manager_ids"
+                        :error="getError('manager_ids')" :inline-message="hasError('manager_ids')">
+                        <el-select v-model="formData.manager_ids" class="w-full" placeholder="Chọn nhân viên" multiple>
+                            <el-option 
+                                v-for="item in managerAdmins" 
+                                :key="item.id" :label="item.admin_profile.full_name" :value="item.id" 
                             />
                         </el-select>
                     </el-form-item>
@@ -63,17 +90,25 @@ export default {
         return {
             isShowForm: false,
             title: 'Thêm điểm giao dịch',
+            loading: false,
+            loadingForm: false,
             provinces: [],
             districts: [],
+            headAdmins: [],
+            managerAdmins: [],
             formData: {
                 name: '',
                 province_id: '',
                 district_id: '',
+                address: '',
+                admin_head_id: '',
+                manager_ids: []
             },
             rules: {
                 name: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 province_id: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 district_id: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                address: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
             },
         }
     },
@@ -81,38 +116,53 @@ export default {
         isShowForm(val) {
             if (val == false) {
                 this.formData = {}
-                this.provinces = []
+                this.headAdmins = []
                 this.districts = []
                 this.$refs.form.resetFields()
             }
         }
     },
     methods: {
-        async getProvice() {
-            await axios.get(route('admin.api.region.province-all'))
-                .then(({ data }) => {
-                    this.provinces = data.data
-                })
-        },
         async getDistrict() {
             this.districts = []
             if (this.formData.province_id) {
-                await axios.get(route('admin.api.region.get-district', this.formData.province_id))
+                let params = {
+                    'province_id': this.formData.province_id,
+                    'transaction_id': this.formData.id
+                }
+                await axios.get(route('admin.api.transaction-point.get-district', params))
                     .then(({ data }) => {
                         this.districts = data.data
                     })
             }
         },
-        async open(data) {
+        async getAdmin() {
+            let params = {
+                id: this.formData.id
+            }
+            await axios.get(route('admin.api.transaction-point.get-admin', params))
+                .then(({ data }) => {
+                    this.headAdmins = data.data.head_admins
+                    this.managerAdmins = data.data.manager_admins
+                })
+        },
+        async open(provinces, data) {
             this.isShowForm = true
+            this.loading = true
+            this.provinces = provinces
             if (data) {
                 this.title = 'Cập nhật điểm giao dịch'
                 this.formData = {...data}
             } else {
                 this.title = 'Thêm điểm giao dịch'   
             }
-            await this.getProvice()
+            await this.getAdmin()
             await this.getDistrict()
+            this.loading = false
+        },
+        changeProvince() {
+            this.formData.district_id = ''
+            this.getDistrict()
         },
         cancelForm() {
             this.isShowForm = false
@@ -150,7 +200,7 @@ export default {
     margin-right: 0 !important;
 }
 #admin-account {
-    width: 600px;
+    width: 700px;
     margin-top: 70px;
 }
 </style>

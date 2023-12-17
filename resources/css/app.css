@@ -83,12 +83,12 @@ body {
 }
 .el-input__inner {
     text-align: left !important;
-    height: 100% !important;
+    /* height: 100% !important; */
     margin-bottom: 4px !important;
 }
 
 .el-input__wrapper {
-    height: 32px !important;
+    /* height: 32px !important; */
     line-height: 32px !important;
 }
 
@@ -201,4 +201,7 @@ a.fc-daygrid-event {
 }
 .el-form-item__error {
     font-size: 13px !important;
+}
+.el-button>span {
+    margin-bottom: 2px;
 }

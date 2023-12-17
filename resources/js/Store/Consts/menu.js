@@ -46,15 +46,29 @@ export const MENUS = [
     {
         label: 'Quản lý đơn gửi đi',
         icon: 'bi-database-up',
-        route: 'admin.student-account',
-        pathActive: 'student-account',
-        roles: [MASTER_ADMIN, MANAGER_TRANSACTION_ADMIN, MANAGER_CONCENTRATE_ADMIN]
+        route: 'admin.transaction-order-send.index',
+        pathActive: 'transaction-order-send',
+        roles: [MASTER_ADMIN, MANAGER_TRANSACTION_ADMIN]
     },
     {
         label: 'Quản lý đơn tiếp nhận',
         icon: 'bi-database-down',
-        route: 'admin.student-account',
-        pathActive: 'student-account',
-        roles: [MASTER_ADMIN, MANAGER_TRANSACTION_ADMIN, MANAGER_CONCENTRATE_ADMIN]
+        route: 'admin.transaction-order-receive.index',
+        pathActive: 'transaction-order-receive',
+        roles: [MASTER_ADMIN, MANAGER_TRANSACTION_ADMIN]
+    },
+    {
+        label: 'Quản lý đơn gửi đi',
+        icon: 'bi-database-up',
+        route: 'admin.concentrate-order-send.index',
+        pathActive: 'concentrate-order-send',
+        roles: [MASTER_ADMIN, MANAGER_CONCENTRATE_ADMIN]
+    },
+    {
+        label: 'Quản lý đơn tiếp nhận',
+        icon: 'bi-database-down',
+        route: 'admin.concentrate-order-receive.index',
+        pathActive: 'concentrate-order-receive',
+        roles: [MASTER_ADMIN, MANAGER_CONCENTRATE_ADMIN]
     },
 ]

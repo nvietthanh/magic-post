@@ -3,12 +3,7 @@
     <AppLayout>
         <template v-slot:main>
             <div class="flex h-[56px] items-center w-full px-2 bg-[white] border-b-[2px]">
-                <h1 class="bold text-[20px] font-bold">Danh sách điểm giao dịch</h1>
-                <div class="flex float-right ml-auto">
-                    <el-button class="text-white" color="#0082BE" @click="openCreateForm">
-                        Thêm mới
-                    </el-button>
-                </div>
+                <h1 class="bold text-[20px] font-bold">Danh sách đơn tiếp nhận</h1>
             </div>
             <div>
                 <div class="mx-[4px] mb-4">
@@ -52,19 +47,21 @@
                     :paginate="paginate" footer-center 
                     paginate-background @page-change="changePage"
                 >
+                    <template #type="{ row }">
+                        <div>{{ row?.type == 1 ? 'Tài liệu' : 'Hàng hóa' }}</div>
+                    </template>
+                    <template #status_text="{ row }">
+                        <div>{{ row?.status_text }}</div>
+                        <div>({{ row?.status_process }})</div>
+                    </template>
                     <template #action="{ row }">
                         <div class="flex justify-center gap-1">
-                            <el-button type="danger" @click="openDeleteItem(row)"> 
-                                Xóa bỏ
-                            </el-button>
-                            <el-button type="info" @click="openEditForm(row)"> 
-                                Sửa
-                            </el-button>
+                            <el-button type="info" @click="showDetail(row)">Chi tiết</el-button>
                         </div>
                     </template>
                 </DataTable>
             </div>
-            <FormInput ref="transactionForm" @change-data="fetchData"/>
+            <ShowDetail ref="showDetail" @change-data="fetchData"/>
         </template>
     </AppLayout>
 </template>
@@ -72,13 +69,10 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/Admin/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue'
-import FormInput from './Dialog/Form.vue'
-import { ElMessageBox } from 'element-plus'
+import ShowDetail from './Dialog/Show.vue'
 
 export default {
-    components: { Head, Link, AppLayout, DataTable, FormInput },
-    async created() {
-    },
+    components: { Head, Link, AppLayout, DataTable, ShowDetail },
     data: function () {
         return {
             loadingForm: false,
@@ -87,12 +81,15 @@ export default {
             provinces: [],
             districts: [],
             fields: [
-                { key: 'name', label: 'Tên điểm', minWidth: 180, align: 'left', headerAlign: 'left   ' },
-                { key: 'district_name', label: 'Huyện', width: 170, align: 'left', headerAlign: 'left' },
-                { key: 'province_name', label: 'Thành phố', width: 170, align: 'left', headerAlign: 'left' },
-                { key: 'created_at', label: 'Ngày tạo', width: 200, align: 'left', headerAlign: 'left' },
-                { key: 'updated_at', label: 'Ngày cập nhật', width: 200, align: 'left', headerAlign: 'left' },
-                { key: 'action', label: 'Thao tác', width: 160, align: 'center', headerAlign: 'center', fixed: 'right' },
+                { key: 'order_code', label: 'Mã vận đơn', width: 100, align: 'left', headerAlign: 'left' },
+                { key: 'type', label: 'Loại đơn', width: 100, align: 'left', headerAlign: 'left' },
+                { key: 'full_name', label: 'Người nhận', minWidth: 120, align: 'left', headerAlign: 'left' },
+                { key: 'phone_number', label: 'Số điện thoại', width: 120, align: 'left', headerAlign: 'left' },
+                { key: 'receive_district_name', label: 'Điểm gửi', width: 190, align: 'left', headerAlign: 'left' },
+                { key: 'delivery_district_name', label: 'Điểm nhận', width: 190, align: 'left', headerAlign: 'left' },
+                { key: 'status_text', label: 'Trạng thái', width: 210, align: 'center', headerAlign: 'center' },
+                { key: 'created_at', label: 'Ngày tạo', width: 100, align: 'center', headerAlign: 'center' },
+                { key: 'action', label: 'Thao tác', width: 100, align: 'center', headerAlign: 'center', fixed: 'right' },
             ],
             filter: {
                 name: '',
@@ -125,7 +122,7 @@ export default {
         },
         fetchData() {
             this.loadingForm = true
-            axios.get(route('admin.api.transactioin-point.index', this.filter))
+            axios.get(route('admin.api.concentrate-order-send.index', this.filter))
                 .then(({ data }) => {
                     this.transactionPoints = data.data
                     this.paginate = data?.meta
@@ -140,28 +137,8 @@ export default {
             this.page = 1
             this.fetchData()
         },
-        openCreateForm() {
-            this.$refs.transactionForm.open(this.provinces)
-        },
-        openEditForm(row) {
-            this.$refs.transactionForm.open(this.provinces, row)
-        },
-        openDeleteItem(row) {
-            ElMessageBox.confirm(
-                'Bạn có muốn xóa điểm giao dịch này?',
-                'Thông báo',
-                {
-                    confirmButtonText: 'OK',
-                    cancelButtonText: 'Hủy bỏ',
-                    type: 'warning',
-                }
-            )
-            .then(() => {
-                axios.delete(route('admin.api.transactioin-point.destroy', row.id)).then(({data}) => {
-                    this.$message({ message: data?.message, type: 'success'})
-                    this.fetchData()
-                })
-            })
+        showDetail(row) {
+            this.$refs.showDetail.open(row)
         },
         changePage(value) {
             this.filter.page = value

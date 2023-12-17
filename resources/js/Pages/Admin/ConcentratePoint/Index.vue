@@ -64,7 +64,7 @@
                     </template>
                 </DataTable>
             </div>
-            <CreateForm ref="createConcentrateForm" @change-data="fetchData"/>
+            <Form ref="concentrateForm" @change-data="fetchData"/>
         </template>
     </AppLayout>
 </template>
@@ -72,11 +72,11 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/Admin/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue'
-import CreateForm from './Dialog/Create.vue'
+import Form from './Dialog/Form.vue'
 import { ElMessageBox } from 'element-plus'
 
 export default {
-    components: { Head, Link, AppLayout, DataTable, CreateForm },
+    components: { Head, Link, AppLayout, DataTable, Form },
     async created() {
     },
     data: function () {
@@ -141,10 +141,10 @@ export default {
             this.fetchData()
         },
         openCreateForm() {
-            this.$refs.createConcentrateForm.open()
+            this.$refs.concentrateForm.open(this.provinces)
         },
         openEditForm(row) {
-            this.$refs.createConcentrateForm.open(row)
+            this.$refs.concentrateForm.open(this.provinces, row)
         },
         openDeleteItem(row) {
             ElMessageBox.confirm(

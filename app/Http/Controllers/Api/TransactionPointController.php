@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\AdminRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TransactionPointRequest;
 use App\Http\Resources\TransactionPointResource;
+use App\Models\Admin;
+use App\Models\District;
 use App\Models\TransactionPoint;
 use Illuminate\Http\Request;
 
@@ -96,5 +99,67 @@ class TransactionPointController extends Controller
         $transactionPoint->delete();
 
         return $this->sendSuccessResponse([], 'Xóa điểm giao dịch thành công');
+    }
+
+    public function getDistrict($province_id, Request $request)
+    {
+        $districtIds = TransactionPoint::query()
+            ->when($request->transaction_id, function ($query) use ($request) {
+                $query->whereNot('id', $request->transaction_id);
+            })
+            ->pluck('district_id');
+
+        $districts = District::where('province_id', $province_id)
+            ->select('id', 'name', 'province_id')
+            ->whereNotIn('id', $districtIds)
+            ->get();
+
+        return response()->json([
+            'data' => $districts
+        ]);
+    }
+
+    public function getTransactionAdmin(Request $request)
+    {
+        $adminIds = [];
+        $transactionPoint = TransactionPoint::whereId($request->id)->first();
+        if ($transactionPoint) {
+            $adminIds = $transactionPoint->adminProfiles()->pluck('admin_id');
+        }
+
+        $headAdmins = Admin::query()
+            ->with('adminProfile')
+            ->whereHas('roles', function ($query) {
+                $query->where('role_code', AdminRoleEnum::HEAD_TRANSACTION_ADMIN);
+            })
+            ->whereHas('adminProfile', function ($query) use ($adminIds){
+                $query->where(function ($subQuery) use ($adminIds){
+                    $subQuery->whereNull('concentrate_point_id')
+                        ->whereNull('transaction_point_id')
+                        ->orWhereIn('id', $adminIds);
+                });
+            })
+            ->get();
+
+        $managerAdmins = Admin::query()
+            ->with('adminProfile')
+            ->whereHas('roles', function ($query) {
+                $query->where('role_code', AdminRoleEnum::MANAGER_TRANSACTION_ADMIN);
+            })
+            ->whereHas('adminProfile', function ($query) use ($adminIds){
+                $query->where(function ($subQuery) use ($adminIds){
+                    $subQuery->whereNull('concentrate_point_id')
+                        ->whereNull('transaction_point_id')
+                        ->orWhereIn('id', $adminIds);
+                });
+            })
+            ->get();
+
+        return response()->json([
+            'data' => [
+                'manager_admins' => $managerAdmins,
+                'head_admins' => $headAdmins
+            ]
+        ]);
     }
 }

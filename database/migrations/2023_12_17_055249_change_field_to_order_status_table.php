@@ -11,27 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admin_profiles', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('admin_id')
-                ->constrained(table: 'admins')
-                ->onDelete('cascade');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('phone');
-            $table->string('address');
-            $table->enum('gender', [1, 2])->comment('1: MALE; 2: FEMALE');
-            $table->string('avatar')->nullable();
+        Schema::table('order_statuses', function (Blueprint $table) {
             $table->foreignId('concentrate_point_id')
                 ->nullable()
+                ->after('note')
                 ->constrained(table: 'concentrate_points')
                 ->onDelete('cascade');
             $table->foreignId('transaction_point_id')
                 ->nullable()
+                ->after('note')
                 ->constrained(table: 'transaction_points')
                 ->onDelete('cascade');
-            $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -40,6 +30,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('admin_profiles');
+        Schema::table('order_statuses', function (Blueprint $table) {
+            $table->dropForeign('order_statuses_concentrate_point_id_foreign');
+            $table->dropForeign('order_statuses_transaction_point_id_foreign');
+            $table->dropColumn('concentrate_point_id');
+            $table->dropColumn('transaction_point_id');
+        });
     }
 };

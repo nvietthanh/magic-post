@@ -41,7 +41,7 @@ class AdminSeeder extends Seeder
                     'gender' => '1',
                     'phone' => '035818181',
                     'address' => 'Address 2',
-                    'district_id' => 1
+                    'transaction_point_id' => 1
                 ],
                 'role' => 'head of transaction admin'
             ],
@@ -56,7 +56,7 @@ class AdminSeeder extends Seeder
                     'gender' => '1',
                     'phone' => '035818181',
                     'address' => 'Address 3',
-                    'district_id' => 1
+                    'concentrate_point_id' => 1
                 ],
                 'role' => 'head of concentrate admin'
             ],
@@ -71,7 +71,7 @@ class AdminSeeder extends Seeder
                     'gender' => '1',
                     'phone' => '035818181',
                     'address' => 'Address 4',
-                    'district_id' => 1
+                    'transaction_point_id' => 1
                 ],
                 'role' => 'manager of transaction admin'
             ],
@@ -86,7 +86,7 @@ class AdminSeeder extends Seeder
                     'gender' => '1',
                     'phone' => '035818181',
                     'address' => 'Address 5',
-                    'district_id' => 1
+                    'concentrate_point_id' => 1
                 ],
                 'role' => 'manager of concentrate admin'
             ],

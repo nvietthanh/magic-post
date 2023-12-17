@@ -18,9 +18,19 @@ class Order extends Model
         return $this->hasMany(OrderStatus::class, 'order_id', 'id');
     }
 
-    public function orderDetail()
+    public function orderDetails()
     {
-        return $this->hasOne(OrderDetail::class, 'order_id', 'id');
+        return $this->hasMany(OrderDetail::class, 'order_id', 'id');
+    }
+
+    public function receiveDistrict()
+    {
+        return $this->hasOne(District::class, 'id', 'receive_district_id');
+    }
+
+    public function deliveryDistrict()
+    {
+        return $this->hasOne(District::class, 'id', 'delivery_district_id');
     }
 }
 

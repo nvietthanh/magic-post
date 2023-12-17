@@ -16,11 +16,13 @@ class TransactionPointSeeder extends Seeder
         $data = [
             [
                 'district_id' => 1,
-                'name' => 'Điểm giao dịch 1'
+                'name' => 'Điểm giao dịch 1',
+                'address' => 'Address 1'
             ],
             [
                 'district_id' => 2,
-                'name' => 'Điểm giao dịch 2'
+                'name' => 'Điểm giao dịch 2',
+                'address' => 'Address 2'
             ],
         ];
 

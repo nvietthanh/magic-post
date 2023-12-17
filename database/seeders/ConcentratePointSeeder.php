@@ -16,15 +16,18 @@ class ConcentratePointSeeder extends Seeder
         $data = [
             [
                 'district_id' => 1,
-                'name' => 'Điểm tiếp nhận 1'
+                'name' => 'Điểm tiếp nhận 1',
+                'address' => 'Address 1'
             ],
             [
                 'district_id' => 1,
-                'name' => 'Điểm tiếp nhận 2'
+                'name' => 'Điểm tiếp nhận 2',
+                'address' => 'Address 3'
             ],
             [
                 'district_id' => 2,
-                'name' => 'Điểm tiếp nhận 1'
+                'name' => 'Điểm tiếp nhận 1',
+                'address' => 'Address 3'
             ],
         ];
 

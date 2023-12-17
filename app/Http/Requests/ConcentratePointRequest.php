@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class TransactionPointRequest extends FormRequest
+class ConcentratePointRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,7 @@ class TransactionPointRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'district_id' => [ 
-                'required',
-                Rule::unique('transaction_points', 'district_id')->ignore($this->id)
-            ],
+            'district_id' => 'required',
             'address' => 'required|string|max:255',
         ];
     }

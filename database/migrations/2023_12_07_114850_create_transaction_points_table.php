@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('concentrate_points', function (Blueprint $table) {
+        Schema::create('transaction_points', function (Blueprint $table) {
             $table->id();
             $table->foreignId('district_id')
                 ->nullable()
                 ->constrained(table: 'districts')
                 ->onDelete('cascade');
             $table->string('name');
+            $table->string('address');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('concentrate_points');
+        Schema::dropIfExists('transaction_points');
     }
 };

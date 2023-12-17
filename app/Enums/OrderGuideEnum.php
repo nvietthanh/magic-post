@@ -20,7 +20,7 @@ final class OrderGuideEnum extends Enum
     public const RETURN_EXPIRED = 4;
     public const CANCELLED = 5;
 
-    public static $guideAll = [
+    public const GUIDE_ALL = [
         [
             'label' => 'Chuyển hoàn ngay',
             'value' => self::RETURN_IMMEDIATE

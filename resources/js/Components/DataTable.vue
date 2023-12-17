@@ -1,7 +1,10 @@
 <template>
     <div class="DataTable" shadow="never">
         <slot v-if="paginate && items.length" name="before">
-            <div class="card-footer mt-2" :class="{ 'card-footer--center': footerCenter }">
+            <div
+                v-if="!disablePaginateHeader"
+                class="card-footer mt-2" :class="{ 'card-footer--center': footerCenter }"
+            >
                 <div class="table-pagination flex justify-end items-end">
                     <div v-if="!disableTableInfo && paging.from && paging.to" class="table-showing mr-4 w-[200px]">
                         <span class="text-[#646464] text-sm">
@@ -66,7 +69,8 @@
             <!-- Pass on all named slots -->
             <slot v-for="slot in Object.keys($slots)" :slot-scope="slot" :name="slot" />
             <template #empty>
-                <el-empty description="Không có dữ liệu" />
+                <div v-if="emtyDefault" class="my-2">Không có dữ liệu</div>
+                <el-empty v-else description="Không có dữ liệu" />
             </template>
         </el-table>
         <slot v-if="paginate && items.length" name="after">
@@ -115,7 +119,9 @@ export default {
         enableIndex: { type: Boolean, default: false },
         enableSelectBox: { type: Boolean, default: false },
         disableTableInfo: { type: Boolean, default: false },
+        disablePaginateHeader: { type: Boolean, default: false },
         disablePaginateFooter: { type: Boolean, default: false },
+        emtyDefault: { type: Boolean, default: false },
         headerCenter: { type: Boolean, default: false },
         footerCenter: { type: Boolean, default: false },
         paginateBackground: { type: Boolean, default: true },
