@@ -48,7 +48,7 @@
                 <DataTable
                     v-loading="loadingForm"
                     :fields="fields"
-                    :items="listAccount" 
+                    :items="listOrder" 
                     :paginate="paginate" 
                     footer-center 
                     paginate-background
@@ -56,25 +56,24 @@
                 >
                     <template #action="{ row }">
                         <div class="flex justify-center gap-1">
-                            <el-button type="info" @click="openEditForm(row)">Chi tiết</el-button>
+                            <el-button type="info" @click="openDetail(row)">Chi tiết</el-button>
                         </div>
                     </template>
                 </DataTable>
             </div>
-            <CreateForm ref="createAccountForm" @change-data="fetchData"/>
+            <OrderDetail ref="accountOrderDetail"/>
         </template>
     </AppLayout>
 </template>
 <script>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/Admin/AdminLayout.vue';
-// import Paginate from '@/Components/Pagination/Paginate.vue';
 import DataTable from '@/Components/DataTable.vue'
-import CreateForm from './Dialog/Create.vue'
+import OrderDetail from './Dialog/OrderDetail.vue'
 import { ElMessageBox } from 'element-plus'
 
 export default {
-    components: { Head, Link, AppLayout, DataTable, CreateForm },
+    components: { Head, Link, AppLayout, DataTable, OrderDetail },
     props: {
         user: {
             type: Object || Array,
@@ -89,18 +88,19 @@ export default {
         return {
             loadingForm: false,
             paginate: [],
-            listAccount: [],
+            listOrder: [],
             fields: [
                 { key: 'order_code', label: 'Mã đơn', width: 120, align: 'center', headerAlign: 'center' },
-                { key: 'full_name', label: 'Họ tên người nhận', minWidth: 180, align: 'left', headerAlign: 'left   ' },
-                { key: 'phone', label: 'Số điện thoại', width: 120, align: 'left', headerAlign: 'left' },
-                { key: 'address', label: 'Địa chỉ', width: 150, align: 'left', headerAlign: 'left' },
-                { key: 'status', label: 'Trạng thái', width: 100, align: 'left', headerAlign: 'left' },
-                { key: 'creator', label: 'Người tạo', minWidth: 180, align: 'left', headerAlign: 'left   ' },
+                { key: 'full_name', label: 'Họ tên người nhận', minWidth: 180, align: 'left', headerAlign: 'left' },
+                { key: 'phone_number', label: 'Số điện thoại', width: 110, align: 'left', headerAlign: 'left' },
+                { key: 'address', label: 'Địa chỉ', width: 180, align: 'left', headerAlign: 'left' },
+                { key: 'status_text', label: 'Trạng thái', width: 260, align: 'left', headerAlign: 'left' },
+                { key: 'admin_name', label: 'Người tạo', minWidth: 180, align: 'left', headerAlign: 'left' },
+                { key: 'created_at', label: 'Ngày tạo', width: 150, align: 'left', headerAlign: 'left' },
                 { key: 'action', label: 'Thao tác', width: 120, align: 'center', headerAlign: 'center', fixed: 'right' },
             ],
             filter: {
-                order_code: '',
+                order_code: '', 
                 address: '',
                 full_name: '',
                 page: 1,
@@ -113,13 +113,13 @@ export default {
     methods: {
         fetchData() {
             this.loadingForm = true
-            let pagram = {
+            let params = {
                 id: this.id,
                 ...this.filter
             }
-            axios.get(route('admin.api.user.show', pagram))
+            axios.get(route('admin.api.user.show', params))
                 .then(({ data }) => {
-                    this.listAccount = data.data
+                    this.listOrder = data.data
                     this.paginate = data.meta
                     this.loadingForm = false
                 })
@@ -133,28 +133,8 @@ export default {
             this.filter.gender = ''
             this.page = 1
         },
-        openCreateForm() {
-            this.$refs.createAccountForm.open()
-        },
-        openEditForm(row) {
-            this.$refs.createAccountForm.open(row)
-        },
-        openDeleteItem(row) {
-            ElMessageBox.confirm(
-                'Bạn có muốn xóa tài khoản này?',
-                'Thông báo',
-                {
-                    confirmButtonText: 'OK',
-                    cancelButtonText: 'Hủy bỏ',
-                    type: 'warning',
-                }
-            )
-            .then(() => {
-                axios.delete(route('admin.api.account.destroy', row.id)).then(({data}) => {
-                    this.$message({ message: data?.message, type: 'success'})
-                    this.fetchData()
-                })
-            })
+        openDetail(row) {
+            this.$refs.accountOrderDetail.open(row)
         },
         changePage(value) {
             this.filter.page = value

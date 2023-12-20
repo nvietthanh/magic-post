@@ -5,7 +5,7 @@
                 <div class="w-full flex justify-between items-center">
                     <Link :href="route('admin.dashboard')" class="hidden md:block">
                         <div class="flex justify-between items-center">
-                            <div class="lg:block hidden uppercase text-[18px]">
+                            <div class="uppercase text-[18px]">
                                 MAGIC POST
                             </div>
                         </div>

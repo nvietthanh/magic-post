@@ -50,6 +50,13 @@ if (!function_exists('get_basic_info')) {
         if ($user->adminProfile) {
             $profile = $user->adminProfile;
             $role = $user->roles()->first()->role_code;
+            if ($profile->transactionPoint) {
+                $districtId = $profile->transactionPoint->district_id;
+            }
+            if ($profile->concentratePoint) {
+                $districtId = $profile->concentratePoint->district_id;
+            }
+
         }
         if ($user->userProfile) {
             $profile = $user->userProfile;
@@ -61,6 +68,7 @@ if (!function_exists('get_basic_info')) {
             'full_name' => $profile->first_name . ' ' . $profile->last_name,
             'avatar' => get_avatar_url($profile),
             'role' => $role ?? null,
+            'district_id' => $districtId ?? null
         ];
     }
 }

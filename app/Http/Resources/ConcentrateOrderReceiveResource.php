@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Enums\OrderGuideEnum;
 use App\Enums\OrderStatusEnum;
+use App\Models\OrderStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,16 +18,15 @@ class ConcentrateOrderReceiveResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $orderStatus = $this->orderStatuses()
-            ->whereIn('type', [OrderStatusEnum::TRANSIT_TO_CONCENTRATE, OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION ])
-            ->orderBy('type', 'asc')
-            ->get();
+        $orderStatus = $this->orderStatuses()->orderBy('type', 'asc')->get();
         $getStatus = $this->getOrderStatus($orderStatus);
 
         return [
             'id' => $this->id,
             'admin_id' => $this->admin_id,
             'user_id' => $this->user_id,
+            'email' => $this->user->email,
+            'user_name' => $this->user->userProfile->full_name,
             'order_code' => $this->order_code,
             'type' => $this->type,
             'full_name' => $this->full_name,
@@ -42,6 +42,7 @@ class ConcentrateOrderReceiveResource extends JsonResource
             'guide_text' => $this->getGuide($this->guide),
             'products' => $this->orderDetails,
             'status' => $orderStatus,
+            'status_number' => $getStatus['statusNumber'],
             'status_text' => $getStatus['statusText'],
             'status_process' => $getStatus['processText'],
             'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i'),
@@ -64,26 +65,35 @@ class ConcentrateOrderReceiveResource extends JsonResource
     
     public function getOrderStatus($orderStatus)
     {
-        $lastOrderStatus = $orderStatus->last();
+        $currentUser = auth()->user();
         $listStatus = OrderStatusEnum::All;
-        $statusText = '';
+        $lastOrderStatus = $orderStatus->last();
 
         foreach ($listStatus as $status) {
             if ($status['value'] == $lastOrderStatus->type) {
                 $statusText = $status['label'];
+                $processText = $status['text'];
+                break;
+            }
+        }
+        foreach ($orderStatus as $status) {
+            if ($status->type == OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND && 
+                $status->receive_point_id == $currentUser->adminProfile->concentrate_point_id)
+            {
+                $statusNumber = OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND;
+                break;
+            } elseif ($status->type == OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_RECEIVE && 
+                $status->send_point_id == $currentUser->adminProfile->concentrate_point_id)
+            {
+                $statusNumber = OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_RECEIVE;
                 break;
             }
         }
 
-        if ($lastOrderStatus->status == 0) {
-            $processText = 'Đang chờ xác nhận';
-        } else {
-            $processText = 'Thành công';
-        }
-
         return [
-            'statusText' => $statusText,
-            'processText' => $processText,
+            'statusNumber' => $statusNumber ?? '',
+            'statusText' => $statusText ?? '',
+            'processText' => $processText ?? '',
         ];
     }
 }

@@ -21,9 +21,9 @@ class Authenticate extends Middleware
         }
 
         if ($request->is('user') || $request->is('user/*')) {
-            return route('login');
+            return route('auth.login');
         }
 
-        return route('login');
+        return route('auth.login');
     }
 }

@@ -27,6 +27,7 @@ class UpdateProfileRequest extends FormRequest
             'gender' => 'required|in:1,2',
             'phone' => 'required|string|max:255',
             'address' => 'required|string|max:255',
+            'birthday' => 'required',
             'file_image' => 'nullable|image|mimes:jpeg,png,jpg,svg',
             'is_delete_avatar' =>'required|boolean'
         ];

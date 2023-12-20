@@ -13,9 +13,13 @@
                     <el-image :src="user.avatar_default" class="w-[150px] h-[150px]"/>
                 </div>
                 <div class="w-full flex flex-col gap-2">
-                    <div class="w-full flex gap-2">
+                    <div class="flex gap-2">
                         <div class="font-bold">Mã NV: </div>
                         <div>{{ user.uuid }}</div>
+                    </div>
+                    <div class="w-full flex gap-2">
+                        <div class="font-bold">Điểm quản lý: </div>
+                        <div>{{ user.point_name }}</div>
                     </div>
                     <div class="w-full flex gap-2">
                         <div class="font-bold">Email: </div>
@@ -28,12 +32,18 @@
                         </div>
                         <div class="w-full flex gap-2">
                             <div class="font-bold">Giới tính: </div>
-                            <div>{{ user.gender ? 'Nam' : 'Nữ' }}</div>
+                            <div>{{ user.gender == 1 ? 'Nam' : 'Nữ' }}</div>
                         </div>
                     </div>
-                    <div class="w-full flex gap-2">
-                        <div class="font-bold">Số điện thoại: </div>
-                        <div>{{ user.phone }}</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="w-full flex gap-2">
+                            <div class="font-bold">Số điện thoại: </div>
+                            <div>{{ user.phone }}</div>
+                        </div>
+                        <div class="w-full flex gap-2">
+                            <div class="font-bold">Ngày sinh: </div>
+                            <div>{{ user.birthday }}</div>
+                        </div>
                     </div>
                     <div class="w-full flex gap-2">
                         <div class="font-bold">Địa chỉ: </div>
@@ -87,6 +97,15 @@
                                 </el-select>
                             </el-form-item>
                         </div>
+                        <el-form-item label="Ngày sinh" class="w-full" prop="birthday"
+                            :error="getError('birthday')" :inline-message="hasError('birthday')">
+                            <el-date-picker
+                                v-model="formData.birthday"
+                                type="date"
+                                value-format="YYYY-MM-DD"
+                                placeholder="Nhập ngày sinh"
+                            />
+                        </el-form-item>
                         <el-form-item label="Địa chỉ" class="w-full" prop="address"
                             :error="getError('address')" :inline-message="hasError('address')">
                             <el-input v-model="formData.address" type="textarea" placeholder="Nhập địa chỉ"/>
@@ -124,6 +143,7 @@ export default {
                 first_name: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 last_name: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 gender: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                birthday: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 phone: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 address: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
             },
@@ -221,7 +241,7 @@ export default {
     margin-right: 0 !important;
 }
 #profile-form {
-    width: 700px;
+    width: 750px;
     margin-top: 70px;
 }
 </style>

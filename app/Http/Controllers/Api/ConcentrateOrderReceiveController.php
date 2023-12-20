@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ConcentrateOrderReceiveResource;
+use App\Http\Resources\OrderStatusResource;
 use App\Models\Order;
 use App\Models\OrderStatus;
 use Illuminate\Http\Request;
@@ -22,8 +23,18 @@ class ConcentrateOrderReceiveController extends Controller
 
         $orders = Order::query()
             ->whereHas('orderStatuses', function ($query) use ($currentUser) {
-                $query->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE)
-                    ->where('concentrate_point_id', $currentUser->adminProfile->concentrate_point_id);
+                $query->where(function ($subQuery) use ($currentUser) {
+                    $subQuery->Where(function ($builder) use ($currentUser) {
+                            $builder->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND)
+                                ->where('receive_point_id', $currentUser->adminProfile->concentrate_point_id);
+                        });
+                });
+                $query->orWhere(function ($subQuery) use ($currentUser) {
+                    $subQuery->where(function ($builder) use ($currentUser) {
+                        $builder->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_SEND)
+                            ->where('receive_point_id', $currentUser->adminProfile->concentrate_point_id);
+                    });
+                });
             })
             ->paginate(10);
 
@@ -78,32 +89,76 @@ class ConcentrateOrderReceiveController extends Controller
         //
     }
 
-    public function changeReceiveStatus(string $id, Request $request)
+    public function changeConcentrateStatus(string $id, Request $request)
     {
         $order = Order::findOrFail($id);
         $status = $request->status ?? 1;
 
         DB::beginTransaction();
         try {
-            $orderStatus = OrderStatus::where('order_id', $id)
-                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE)
-                ->firstOrFail();
+            $orderTransaction = OrderStatus::where('order_id', $id)
+                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND)
+                ->first();
+
+            $orderConcentrate = OrderStatus::where('order_id', $id)
+                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_RECEIVE)
+                ->first();
+
+            if ($status == 1 && !$orderConcentrate) {
+                $order->orderStatuses()->create([
+                    'order_id' => $order->id,
+                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE_RECEIVE,
+                    'send_point_id' => $orderTransaction->receive_point_id,
+                    'receive_point_id' => $orderTransaction->receive_point_id,
+                ]);
+            } elseif ($status == 1 && $orderConcentrate) {
+                $orderConcentrate->update([
+                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE_RECEIVE,
+                    'send_point_id' => $orderTransaction->receive_point_id,
+                    'receive_point_id' => $orderTransaction->receive_point_id,
+                ]);
+            } elseif ($status == 0) {
+                $orderConcentrate?->delete();
+            }
+
+            DB::commit();
+            return $this->sendSuccessResponse($order, 'Cập nhật trạng thái đơn hàng thành công');
+        } catch (Throwable $e) {
+            DB::rollback();
+            return $this->sendErrorResponse('Có lỗi trong quá trình thực hiện.', $e->getMessage());
+        }
+    }
+
+    public function changeConcentrateDesStatus(string $id, Request $request)
+    {
+        $order = Order::findOrFail($id);
+        $status = $request->status ?? 1;
+
+        DB::beginTransaction();
+        try {
+            $orderConcentrate = OrderStatus::where('order_id', $id)
+                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_SEND)
+                ->first();
+
             $orderConcentrateDestination = OrderStatus::where('order_id', $id)
-                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION)
+                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_RECEIVE)
                 ->first();
     
-            $orderStatus->update([
-                'status' => $status,
-            ]);
-
             if ($status == 1 && !$orderConcentrateDestination) {
                 $order->orderStatuses()->create([
-                    'order_id' => $orderStatus->order_id,
-                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION,
-                    'status' => 0,
+                    'order_id' => $order->id,
+                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_RECEIVE,
+                    'send_point_id' => $orderConcentrate->receive_point_id,
+                    'receive_point_id' => $orderConcentrate->receive_point_id,
                 ]);
-            } elseif ($orderConcentrateDestination) {
-                $orderConcentrateDestination->delete();
+            } elseif ($status == 1 && $orderConcentrateDestination) {
+                $orderConcentrateDestination->update([
+                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_RECEIVE,
+                    'send_point_id' => $orderConcentrate->receive_point_id,
+                    'receive_point_id' => $orderConcentrate->receive_point_id,
+                ]);
+            } elseif ($status == 0) {
+                $orderConcentrateDestination?->delete();
             }
 
             DB::commit();

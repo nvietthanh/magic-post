@@ -90,6 +90,66 @@ class AdminSeeder extends Seeder
                 ],
                 'role' => 'manager of concentrate admin'
             ],
+            [
+                'uuid' => 'NV000002',
+                'email' => 'head_transaction_admin_2@yopmail.com',
+                'password' => bcrypt('12345678'),
+                'password_not_hash' => Crypt::encryptString('12345678'),
+                'profile' => [
+                    'first_name' => 'head transaction',
+                    'last_name' => 'admin 2',
+                    'gender' => '1',
+                    'phone' => '035818181',
+                    'address' => 'Address 2',
+                    'transaction_point_id' => 2
+                ],
+                'role' => 'head of transaction admin'
+            ],
+            [
+                'uuid' => 'NV000003',
+                'email' => 'head_concentrate_admin_2@yopmail.com',
+                'password' => bcrypt('12345678'),
+                'password_not_hash' => Crypt::encryptString('12345678'),
+                'profile' => [
+                    'first_name' => 'head concentrate',
+                    'last_name' => 'last_name 2',
+                    'gender' => '1',
+                    'phone' => '035818181',
+                    'address' => 'Address 3',
+                    'concentrate_point_id' => 3
+                ],
+                'role' => 'head of concentrate admin'
+            ],
+            [
+                'uuid' => 'NV000004',
+                'email' => 'manager_transaction_admin_2@yopmail.com',
+                'password' => bcrypt('12345678'),
+                'password_not_hash' => Crypt::encryptString('12345678'),
+                'profile' => [
+                    'first_name' => 'manager transaction',
+                    'last_name' => 'admin 2',
+                    'gender' => '1',
+                    'phone' => '035818181',
+                    'address' => 'Address 4',
+                    'transaction_point_id' => 2
+                ],
+                'role' => 'manager of transaction admin'
+            ],
+            [
+                'uuid' => 'NV000005',
+                'email' => 'manager_concentrate_admin_2@yopmail.com',
+                'password' => bcrypt('12345678'),
+                'password_not_hash' => Crypt::encryptString('12345678'),
+                'profile' => [
+                    'first_name' => 'manager concentrate',
+                    'last_name' => 'admin 2',
+                    'gender' => '1',
+                    'phone' => '035818181',
+                    'address' => 'Address 5',
+                    'concentrate_point_id' => 3
+                ],
+                'role' => 'manager of concentrate admin'
+            ],
         ];
 
         foreach ($admins as $data) {
