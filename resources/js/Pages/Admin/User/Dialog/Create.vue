@@ -47,6 +47,15 @@
                         <el-input v-model="formData.phone" placeholder="Nhập số điện thoại" />
                     </el-form-item>
                 </div>
+                <el-form-item label="Ngày sinh" class="w-full" prop="birthday"
+                    :error="getError('birthday')" :inline-message="hasError('birthday')">
+                    <el-date-picker
+                        v-model="formData.birthday"
+                        type="date"
+                        value-format="YYYY-MM-DD"
+                        placeholder="Nhập ngày sinh"
+                    />
+                </el-form-item>
                 <el-form-item label="Địa chỉ thường trú" class="w-full" prop="address"
                     :error="getError('address')" :inline-message="hasError('address')">
                     <el-input type="textarea" v-model="formData.address" placeholder="Nhập địa chỉ thường trú" />
@@ -82,6 +91,7 @@ export default {
                 last_name: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 email: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 gender: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                birthday: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 phone: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 address: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
             },

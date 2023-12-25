@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserAccountRequest;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\OrderStatusResource;
 use App\Http\Resources\UserAccountResource;
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +74,7 @@ class UserController extends Controller
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'gender' => $data['gender'],
+                'birthday' => $data['birthday'],
                 'phone' => $data['phone'],
                 'address' => $data['address'],
             ]);
@@ -91,9 +94,11 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $orders = $user->orders()->get();
+        $orders = Order::query()
+            ->where('user_id', $user->id)
+            ->paginate(10);
 
-        return OrderResource::collection($orders);
+        return OrderStatusResource::collection($orders);
     }
 
     /**
@@ -124,6 +129,7 @@ class UserController extends Controller
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'gender' => $data['gender'],
+                'birthday' => $data['birthday'],
                 'phone' => $data['phone'],
                 'address' => $data['address'],
             ]);
@@ -146,5 +152,12 @@ class UserController extends Controller
         $user->delete();
 
         return $this->sendSuccessResponse([], 'Xóa tài khoản thành công');
+    }
+
+    public function getAll()
+    {
+        $users = User::all();
+
+        return UserAccountResource::collection($users);
     }
 }

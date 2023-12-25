@@ -14,6 +14,16 @@ class ProfileAdminResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        if ($this->transactionPoint) {
+            $pointName = $this->transactionPoint->name;
+            $pointName .= ', ' . $this->transactionPoint->district->name;
+            $pointName .= ', ' . $this->transactionPoint->district->province->name;
+        } elseif ($this->concentratePoint) {
+            $pointName = $this->concentratePoint->name;
+            $pointName .= ', ' . $this->concentratePoint->district->name;
+            $pointName .= ', ' . $this->concentratePoint->district->province->name;
+        }
+
         return [
             'id' => $this->id,
             'uuid' => $this->admin->uuid,
@@ -26,6 +36,8 @@ class ProfileAdminResource extends JsonResource
             'phone' => $this->phone,
             'gender' => $this->gender,
             'address' => $this->address,
+            'birthday' => $this->birthday,
+            'point_name' => $pointName ?? null
         ];
     }
 }

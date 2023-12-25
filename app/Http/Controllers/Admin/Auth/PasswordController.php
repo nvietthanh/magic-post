@@ -16,7 +16,7 @@ class PasswordController extends Controller
         $currentUser = auth()->user();
 
         if (!Hash::check($data['old_password'], $currentUser->password)) {
-            throw ValidationException::withMessages(['password' => __('auth.password')]);
+            throw ValidationException::withMessages(['old_password' => __('auth.password')]);
         }
         $currentUser->update([
             'password' => bcrypt($data['password'])

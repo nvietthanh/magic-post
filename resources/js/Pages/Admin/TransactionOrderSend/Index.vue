@@ -48,7 +48,7 @@
                 </div>
                 <DataTable
                     v-loading="loadingForm"
-                    :fields="fields" :items="transactionPoints" 
+                    :fields="fields" :items="transactionOrders" 
                     :paginate="paginate" footer-center 
                     paginate-background @page-change="changePage"
                 >
@@ -60,16 +60,20 @@
                         <div>({{ row?.status_process }})</div>
                     </template>
                     <template #action="{ row }">
-                        <div class="flex justify-center gap-1">
-                            <el-button v-show="checkHidden(row)" type="danger" @click="openDeleteItem(row)">Xóa bỏ</el-button>
-                            <el-button v-show="checkHidden(row)" type="success" @click="openEditForm(row)">Sửa</el-button>
+                        <div v-if="row?.status_number == 0">
+                            <el-button v-if="checkHidden(row)" type="danger" @click="openDeleteItem(row)">Xóa bỏ</el-button>
+                            <el-button v-if="checkHidden(row)" type="success" @click="openEditForm(row)">Sửa</el-button>
                             <el-button type="info" @click="showDetail(row)">Chi tiết</el-button>
+                        </div>
+                        <div v-else class="flex justify-center gap-1">
+                            <el-button type="info" @click="showDetailDes(row)">Chi tiết</el-button>
                         </div>
                     </template>
                 </DataTable>
             </div>
             <FormInput ref="transactionForm" @change-data="fetchData" :guides="guides"/>
-            <ShowDetail ref="showDetail" @change-data="fetchData"/>
+            <ShowTransaction ref="showTransaction" @change-data="fetchData"/>
+            <ShowTransactionDes ref="showTransactionDes" @change-data="fetchData"/>
         </template>
     </AppLayout>
 </template>
@@ -78,12 +82,13 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/Admin/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue'
 import FormInput from './Dialog/Form.vue'
-import ShowDetail from './Dialog/Show.vue'
+import ShowTransaction from './Dialog/ShowTransaction.vue'
+import ShowTransactionDes from './Dialog/ShowTransactionDes.vue'
 import { ElMessageBox } from 'element-plus'
 import { PENDING_APPROVAL } from '@/Store/Consts/oderStatus'
 
 export default {
-    components: { Head, Link, AppLayout, DataTable, FormInput, ShowDetail },
+    components: { Head, Link, AppLayout, DataTable, FormInput, ShowTransaction, ShowTransactionDes },
     props: {
         guides: {
             type: Object || Array,
@@ -92,22 +97,21 @@ export default {
     },
     data: function () {
         return {
-            pedingStatus: PENDING_APPROVAL,
             loadingForm: false,
             paginate: [],
-            transactionPoints: [],
+            transactionOrders: [],
             provinces: [],
             districts: [],
             fields: [
                 { key: 'order_code', label: 'Mã vận đơn', width: 100, align: 'left', headerAlign: 'left' },
-                { key: 'type', label: 'Loại đơn', width: 100, align: 'left', headerAlign: 'left' },
-                { key: 'full_name', label: 'Người nhận', minWidth: 120, align: 'left', headerAlign: 'left' },
+                { key: 'user_name', label: 'Người gửi', minWidth: 150, align: 'left', headerAlign: 'left' },
+                { key: 'full_name', label: 'Người nhận', minWidth: 150, align: 'left', headerAlign: 'left' },
                 { key: 'phone_number', label: 'Số điện thoại', width: 120, align: 'left', headerAlign: 'left' },
                 { key: 'receive_district_name', label: 'Điểm gửi', width: 190, align: 'left', headerAlign: 'left' },
                 { key: 'delivery_district_name', label: 'Điểm nhận', width: 190, align: 'left', headerAlign: 'left' },
-                { key: 'status_text', label: 'Trạng thái', width: 200, align: 'center', headerAlign: 'center' },
+                { key: 'status_text', label: 'Trạng thái', width: 260, align: 'center', headerAlign: 'center' },
                 { key: 'created_at', label: 'Ngày tạo', width: 100, align: 'center', headerAlign: 'center' },
-                { key: 'action', label: 'Thao tác', width: 260, align: 'center', headerAlign: 'center', fixed: 'right' },
+                { key: 'action', label: 'Thao tác', width: 280, align: 'center', headerAlign: 'center', fixed: 'right' },
             ],
             filter: {
                 name: '',
@@ -142,7 +146,7 @@ export default {
             this.loadingForm = true
             axios.get(route('admin.api.transaction-order-send.index', this.filter))
                 .then(({ data }) => {
-                    this.transactionPoints = data.data
+                    this.transactionOrders = data.data
                     this.paginate = data?.meta
                     this.loadingForm = false
                 })
@@ -158,10 +162,8 @@ export default {
         checkHidden(row) {
             if (row?.status) {
                 for (let item of row.status) {
-                    if (item.type == this.pedingStatus && item.status == 1) {
+                    if (item.type != PENDING_APPROVAL) {
                         return false
-                    } else if (item.type != this.pedingStatus) {
-                        return true
                     }
                 }
             }
@@ -174,7 +176,10 @@ export default {
             this.$refs.transactionForm.open(row)
         },
         showDetail(row) {
-            this.$refs.showDetail.open(row)
+            this.$refs.showTransaction.open(row)
+        },
+        showDetailDes(row) {
+            this.$refs.showTransactionDes.open(row)
         },
         openDeleteItem(row) {
             ElMessageBox.confirm(

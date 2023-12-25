@@ -11,6 +11,10 @@ class TransactionOrderReceiveController extends Controller
 {
     public function index()
     {
+        $guides = OrderGuideEnum::GUIDE_ALL;
 
+        return Inertia::render('Admin/TransactionOrderReceive/Index', [
+            'guides' => $guides
+        ]);
     }
 }

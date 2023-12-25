@@ -25,6 +25,7 @@ class UserAccountResource extends JsonResource
             'gender' => $this->userProfile->gender,
             'phone' => $this->userProfile->phone,
             'address' => $this->userProfile->address,
+            'birthday' => $this->userProfile->birthday,
             'avatar' => get_avatar_url($this->userProfile)
         ];
     }

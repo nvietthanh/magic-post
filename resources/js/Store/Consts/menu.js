@@ -13,28 +13,28 @@ export const MENUS = [
         icon: 'bi-bar-chart-line',
         route: 'admin.dashboard',
         pathActive: 'dashboard',
-        roles: []
+        roles: [MASTER_ADMIN]
     },
     {
         label: 'Quản lý điểm giao dịch',
         icon: 'bi-newspaper',
         route: 'admin.transaction-point.index',
         pathActive: 'transaction-point',
-        roles: []
+        roles: [MASTER_ADMIN]
     },
     {
         label: 'Quản lý điểm tiếp nhận',
         icon: 'bi-shop',
         route: 'admin.concentrate-point.index',
         pathActive: 'concentrate-point',
-        roles: []
+        roles: [MASTER_ADMIN]
     },
     {
         label: 'Quản lý người dùng',
         icon: 'bi-person',
         route: 'admin.user.index',
         pathActive: 'user',
-        roles: [MASTER_ADMIN, HEAD_TRANSACTION_ADMIN, HEAD_CONCENTRATE_ADMIN]
+        roles: []
     },
     {
         label: 'Quản lý nhân viên',

@@ -32,6 +32,7 @@ class UserAccountRequest extends FormRequest
             ],
             'status' => 'required|boolean',
             'gender' => 'required|in:1,2',
+            'birthday' => 'required',
             'phone' => 'required|string|max:255',
             'address' => 'required|string|max:255',
         ];

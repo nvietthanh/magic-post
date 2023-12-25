@@ -19,6 +19,25 @@
                             <el-option label="Hàng hóa" value="2" />
                         </el-select>
                     </el-form-item>
+                    <el-form-item label="Họ tên người gửi" class="w-full" prop="user_id"
+                        :error="getError('user_id')" :inline-message="hasError('user_id')">
+                        <el-select v-model="formData.user_id" class="w-[300px]"
+                            placeholder="Chọn người gửi"
+                            filterable
+                        >
+                            <el-option 
+                                v-for="item in users" 
+                                :key="item.id" :label="item.full_name" :value="item.id" 
+                            >
+                                <div class="flex justify-between gap-[32px]">
+                                    <div>{{ item?.full_name }}</div>
+                                    <div style="color: var(--el-text-color-secondary)">{{ item.email }}</div>
+                                </div>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </div>
+                <div class="flex gap-[32px]">
                     <el-form-item label="Họ tên người nhận" class="w-full" prop="full_name"
                         :error="getError('full_name')" :inline-message="hasError('full_name')">
                         <el-input type="text" v-model="formData.full_name" placeholder="Nhập họ tên người nhận" />
@@ -37,6 +56,7 @@
                                 <el-select v-model="formData.province_id" class="w-full"
                                     placeholder="Chọn thành phố"
                                     @change="changeProvince"
+                                    filterable
                                 >
                                     <el-option 
                                         v-for="item in provinces" 
@@ -46,7 +66,7 @@
                             </el-form-item>
                             <el-form-item label="Huyện" class="w-[200px] mt-4" prop="delivery_district_id"
                                 :error="getError('delivery_district_id')" :inline-message="hasError('delivery_district_id')">
-                                <el-select v-model="formData.delivery_district_id" class="w-full" placeholder="Chọn huyện">
+                                <el-select v-model="formData.delivery_district_id" class="w-full" placeholder="Chọn huyện" filterable>
                                     <el-option 
                                         v-for="item in districts" 
                                         :key="item.id" :label="item.name" :value="item.id" 
@@ -64,7 +84,7 @@
                 <div class="flex gap-[32px]">
                     <el-form-item label="Người gửi khi gửi hàng thành công" prop="guide"
                         :error="getError('guide')" :inline-message="hasError('guide')">
-                        <el-select v-model="formData.guide" class="w-[250px]" placeholder="Chọn phương thức" clearable>
+                        <el-select v-model="formData.guide" class="w-[250px]" placeholder="Chọn phương thức" clearable filterable>
                             <el-option 
                                 v-for="item in guides" 
                                 :key="item.value" :label="item.label" :value="item.value" 
@@ -137,8 +157,10 @@ export default {
             isProductForm: false,
             provinces: [],
             districts: [],
+            users: [],
             formData: {
                 type: '',
+                user_id: '',
                 full_name: '',
                 phone_number: '',
                 province_id: '',
@@ -190,9 +212,21 @@ export default {
             if (this.formData.province_id) {
                 await axios.get(route('admin.api.region.get-district', this.formData.province_id))
                     .then(({ data }) => {
-                        this.districts = data.data
+                        let listData = data.data
+                        const index = listData.findIndex(item => item.id === this.$page?.props?.auth.user.district_id);
+                        if (index !== -1) {
+                            listData.splice(index, 1);
+                        }
+                        this.districts = listData
                     })
             }
+        },
+        async getUser() {
+            this.users = []
+            await axios.get(route('admin.api.user.get-all'))
+                .then(({ data }) => {
+                    this.users = data.data
+                })
         },
         async open(data) {
             this.isShowForm = true
@@ -205,6 +239,7 @@ export default {
             }
             await this.getProvice()
             await this.getDistrict()
+            await this.getUser()
             this.loading = false
         },
         changeProvince() {

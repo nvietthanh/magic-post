@@ -23,8 +23,9 @@ class OrderSendStoreRequest extends FormRequest
     {
         return [
             'type' => 'required',
+            'user_id' => 'required|exists:users,id',
             'full_name' => 'required|string|max:255',
-            'phone_number' => 'required|string|max:255',
+            'phone_number' => 'required|string|between:10,11',
             'delivery_district_id' => 'required',
             'address' => 'required|string|max:255',
             'guide' => 'required',
@@ -34,6 +35,12 @@ class OrderSendStoreRequest extends FormRequest
             'products.*.quanlity' => 'required',
             'products.*.price' => 'required',
             'products.*.note' => 'nullable|string|max:255',             
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'phone_number.between' => 'Số điện thoại phải có định dạng là :min hoặc :max số'
         ];
     }
 }

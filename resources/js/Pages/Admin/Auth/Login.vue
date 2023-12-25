@@ -19,14 +19,14 @@
                                 show-password/>
                         </el-form-item>
                         <div class="mt-[18px] mb-[32px]">
-                            <Link :href="route('password.request')" class="text-[blue]">
+                            <Link class="text-[blue]">
                                 Quên mật khẩu?
                             </Link>
                         </div>
                         <div class="flex justify-center">
-                            <button type="button" @click="doSubmit" class="px-[14px] py-[6px] rounded-[4px] bg-[#0082be] text-white">
+                            <el-button type="primary" :loading="loadingForm" @click="doSubmit">
                                 Đăng nhập
-                            </button>  
+                            </el-button>  
                         </div>
                     </el-form>
                 </div>
@@ -45,6 +45,7 @@ export default {
     mixins: [form],
     data: function () {
         return {
+            loadingForm: false,
             formData: {
                 email: '',
                 password: ''
@@ -58,6 +59,7 @@ export default {
     },
     methods: {
         async submit() {
+            this.loadingForm = true
             const { data, status } = await axios.post(route('admin.store-login'), this.formData)
             if (status == 200) {
                 this.$message({ message: data?.message, type: status === 200 ? 'success' : 'error' })

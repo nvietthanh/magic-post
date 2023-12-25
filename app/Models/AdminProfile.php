@@ -34,6 +34,11 @@ class AdminProfile extends Model
 
     public function transactionPoint()
     {
-        return $this->belongsTo(TransactionPoint::class, 'district_id', 'district_id');
+        return $this->belongsTo(TransactionPoint::class, 'transaction_point_id', 'id');
+    }
+
+    public function concentratePoint()
+    {
+        return $this->belongsTo(ConcentratePoint::class, 'concentrate_point_id', 'id');
     }
 }

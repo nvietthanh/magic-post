@@ -61,7 +61,8 @@
                     </template>
                 </DataTable>
             </div>
-            <ShowDetail ref="showDetail" @change-data="fetchData"/>
+            <ShowConcentrate ref="showConcentrate" @change-data="fetchData"/>
+            <ShowConcentrateDestination ref="showConcentrateDes" @change-data="fetchData"/>
         </template>
     </AppLayout>
 </template>
@@ -69,10 +70,12 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/Admin/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue'
-import ShowDetail from './Dialog/Show.vue'
+import ShowConcentrate from './Dialog/ShowConcentrate.vue'
+import ShowConcentrateDestination from './Dialog/ShowConcentrateDestination.vue'
+import { TRANSIT_TO_CONCENTRATE_RECEIVE } from '@/Store/Consts/oderStatus'
 
 export default {
-    components: { Head, Link, AppLayout, DataTable, ShowDetail },
+    components: { Head, Link, AppLayout, DataTable, ShowConcentrate, ShowConcentrateDestination },
     data: function () {
         return {
             loadingForm: false,
@@ -82,12 +85,12 @@ export default {
             districts: [],
             fields: [
                 { key: 'order_code', label: 'Mã vận đơn', width: 100, align: 'left', headerAlign: 'left' },
-                { key: 'type', label: 'Loại đơn', width: 100, align: 'left', headerAlign: 'left' },
-                { key: 'full_name', label: 'Người nhận', minWidth: 120, align: 'left', headerAlign: 'left' },
+                { key: 'user_name', label: 'Người gửi', minWidth: 150, align: 'left', headerAlign: 'left' },
+                { key: 'full_name', label: 'Người nhận', minWidth: 150, align: 'left', headerAlign: 'left' },
                 { key: 'phone_number', label: 'Số điện thoại', width: 120, align: 'left', headerAlign: 'left' },
                 { key: 'receive_district_name', label: 'Điểm gửi', width: 190, align: 'left', headerAlign: 'left' },
                 { key: 'delivery_district_name', label: 'Điểm nhận', width: 190, align: 'left', headerAlign: 'left' },
-                { key: 'status_text', label: 'Trạng thái', width: 210, align: 'center', headerAlign: 'center' },
+                { key: 'status_text', label: 'Trạng thái', width: 260, align: 'center', headerAlign: 'center' },
                 { key: 'created_at', label: 'Ngày tạo', width: 100, align: 'center', headerAlign: 'center' },
                 { key: 'action', label: 'Thao tác', width: 100, align: 'center', headerAlign: 'center', fixed: 'right' },
             ],
@@ -138,7 +141,11 @@ export default {
             this.fetchData()
         },
         showDetail(row) {
-            this.$refs.showDetail.open(row)
+            if (row.status_number == TRANSIT_TO_CONCENTRATE_RECEIVE) {
+                this.$refs.showConcentrate.open(row)
+            } else {
+                this.$refs.showConcentrateDes.open(row)
+            }
         },
         changePage(value) {
             this.filter.page = value

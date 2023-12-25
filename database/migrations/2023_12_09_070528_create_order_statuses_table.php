@@ -18,9 +18,10 @@ return new class extends Migration
                 ->constrained(table: 'orders')
                 ->onDelete('cascade');
             $table->integer('type')->default(0);
-            $table->boolean('status')->default(1);
             $table->string('reason_for_refusal')->nullable();
-            $table->string('note')->nullable();            
+            $table->string('note')->nullable();
+            $table->bigInteger('send_point_id')->nullable();
+            $table->bigInteger('receive_point_id')->nullable();        
             $table->timestamps();
         });
     }

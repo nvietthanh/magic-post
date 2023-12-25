@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderSendStoreRequest;
+use App\Http\Resources\OrderStatusResource;
 use App\Http\Resources\TransactionOrderSendResource;
 use App\Models\ConcentratePoint;
 use App\Models\Order;
@@ -20,7 +21,24 @@ class TransactionOrderSendController extends Controller
      */
     public function index()
     {
-        $orders = Order::all();
+        $currentUser = auth()->user();
+
+        $orders = Order::query()
+            ->whereHas('orderStatuses', function ($builder) use ($currentUser) {
+                $builder->where(function ($query) use ($currentUser) {
+                    $query->where(function ($subQuery) use ($currentUser) {
+                        $subQuery->where('type', OrderStatusEnum::PENDING_APPROVAL)
+                            ->where('receive_point_id', $currentUser->adminProfile->transaction_point_id);
+                    });
+                });
+                $builder->orWhere(function ($query) use ($currentUser) {
+                    $query->where(function ($subQuery) use ($currentUser) {
+                        $subQuery->where('type', OrderStatusEnum::TRANSIT_TO_TRANSACTION_DESTINATION_RECEIVE)
+                            ->where('receive_point_id', $currentUser->adminProfile->transaction_point_id);
+                    });
+                });
+            })
+            ->paginate(10);
 
         return TransactionOrderSendResource::collection($orders);
     }
@@ -54,7 +72,8 @@ class TransactionOrderSendController extends Controller
 
             $order->orderStatuses()->create([
                 'type' => OrderStatusEnum::PENDING_APPROVAL,
-                'status' => 0,
+                'send_point_id' => $currentUser->adminProfile->transaction_point_id,
+                'receive_point_id' => $currentUser->adminProfile->transaction_point_id,                
             ]);
 
             foreach ($products as $product) {
@@ -69,35 +88,77 @@ class TransactionOrderSendController extends Controller
         }
     }
 
-    public function changePedingStatus(string $id, Request $request)
+    public function changeTransactionStatus(string $id, Request $request)
     {
+        $currentUser = auth()->user();
         $order = Order::findOrFail($id);
         $status = $request->status ?? 1;
 
         DB::beginTransaction();
         try {
-            $orderStatus = OrderStatus::where('order_id', $id)
-                ->where('type', OrderStatusEnum::PENDING_APPROVAL)
-                ->firstOrFail();
-            $orderConcentrate = OrderStatus::where('order_id', $id)
-                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE)
+            $orderTransaction = OrderStatus::where('order_id', $id)
+                ->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND)
                 ->first();
-    
-            $orderStatus->update([
-                'status' => $status,
-            ]);
 
-            if ($status == 1 && !$orderConcentrate) {
+            if ($status == 1 && !$orderTransaction) {
                 $order->orderStatuses()->create([
-                    'order_id' => $orderStatus->order_id,
-                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE,
-                    'status' => 0,
-                    'concentrate_point_id' => $request->concentrate_point_id
+                    'order_id' => $order->id,
+                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND,
+                    'send_point_id' => $currentUser->adminProfile->transaction_point_id,
+                    'receive_point_id' => $request->concentrate_point_id,                
                 ]);
-            } elseif ($orderConcentrate) {
-                $orderConcentrate->delete();
+            } elseif ($status == 1 && $orderTransaction) {
+                $orderTransaction->update([
+                    'order_id' => $order->id,
+                    'type' => OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND,
+                    'send_point_id' => $currentUser->adminProfile->transaction_point_id,
+                    'receive_point_id' => $request->concentrate_point_id
+                ]);
+            } elseif ($status == 0) {
+                $orderTransaction?->delete();
             }
 
+            DB::commit();
+            return $this->sendSuccessResponse($order, 'Cập nhật trạng thái đơn hàng thành công');
+        } catch (Throwable $e) {
+            DB::rollback();
+            return $this->sendErrorResponse('Có lỗi trong quá trình thực hiện.', $e->getMessage());
+        }
+    }
+
+    public function changeTransactionDesStatus(string $id, Request $request)
+    {
+        $currentUser = auth()->user();
+        $order = Order::findOrFail($id);
+        $status = $request->status ?? 7;
+
+        $orderUser = OrderStatus::where('order_id', $id)
+            ->where('type', OrderStatusEnum::DELIVERED_TO_CUSTOMER_RECEIVE)
+            ->first();
+        $orderReturn = OrderStatus::where('order_id', $id)
+            ->where('type', OrderStatusEnum::RETURN_TO_TRANSACTION)
+            ->first();
+
+        DB::beginTransaction();
+        try {
+            if ($status == OrderStatusEnum::DELIVERED_TO_CUSTOMER_SEND) {
+                $orderUser?->delete();
+                $orderReturn?->delete();
+            } elseif ($status == OrderStatusEnum::DELIVERED_TO_CUSTOMER_RECEIVE) {
+                $order->orderStatuses()->create([
+                    'order_id' => $order->id,
+                    'type' => OrderStatusEnum::DELIVERED_TO_CUSTOMER_RECEIVE,
+                    'send_point_id' => $currentUser->adminProfile->transaction_point_id,
+                    'receive_point_id' => $currentUser->adminProfile->transaction_point_id,  
+                ]);
+            } elseif ($status == OrderStatusEnum::RETURN_TO_TRANSACTION) {
+                $order->orderStatuses()->create([
+                    'order_id' => $order->id,
+                    'type' => OrderStatusEnum::RETURN_TO_TRANSACTION,
+                    'send_point_id' => $currentUser->adminProfile->transaction_point_id,
+                    'receive_point_id' => $order->receive_district_id,
+                ]);
+            }
             DB::commit();
             return $this->sendSuccessResponse($order, 'Cập nhật trạng thái đơn hàng thành công');
         } catch (Throwable $e) {
@@ -170,7 +231,8 @@ class TransactionOrderSendController extends Controller
 
     public function getConcentratePoint(string $provinceId)
     {
-        $concentratePoints = ConcentratePoint::select('id', 'name')
+        $concentratePoints = ConcentratePoint::query()
+            ->with('district.province')
             ->where('district_id', $provinceId)->get();
 
         return response()->json([
