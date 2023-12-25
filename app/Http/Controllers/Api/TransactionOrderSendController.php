@@ -73,7 +73,7 @@ class TransactionOrderSendController extends Controller
             $order->orderStatuses()->create([
                 'type' => OrderStatusEnum::PENDING_APPROVAL,
                 'send_point_id' => $currentUser->adminProfile->transaction_point_id,
-                'receive_point_id' => $currentUser->adminProfile->transaction_point_id,                
+                'receive_point_id' => $currentUser->adminProfile->transaction_point_id,
             ]);
 
             foreach ($products as $product) {

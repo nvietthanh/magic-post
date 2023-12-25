@@ -33,87 +33,100 @@
                     </div>
                 </div>
                 <div class="w-full px-[18px] py-[12px] min-h-[100px] border-[1px] bg-[#f0f0f0]">
-                    <div v-show="tabSelect == 1" class="p-7">
-                        <span class="mb-4 inline-block Montserrat-Bold">Gửi từ: <span class="text-red-500"> * </span></span>
-                        <div class="flex flex-col md:flex-row gap-[24px] items-between mb-[48px]" data-select2-id="select2-data-225-kex9">
-                            <div class="w-full md:w-1/3 flex flex-col" data-select2-id="select2-data-224-pp6l">
-                                <span class="text-[#2C3F58] block mb-[8px]">Tỉnh/ Thành phố</span>
-                                <div class="w-full select2-stupid item-tariff h-[43px]" data-select2-id="select2-data-223-0bqk">
+                    <div v-show="tabSelect == 1" class="sm:p-7 p-[0px]">
+                        <el-form ref="form" :model="formData" :rules="orderRules" label-position="top">
+                            <span class="mb-4 inline-block font-bold">Gửi từ: <span class="text-red-500"> * </span></span>
+                            <div class="flex flex-col md:flex-row sm:gap-[24px] gap-[0] items-between">
+                                <div class="w-full md:w-1/3 flex flex-col" data-select2-id="select2-data-224-pp6l">
+                                    <el-form-item label="Tỉnh/ Thành phố" prop="province_from_id"
+                                        :error="getError('province_from_id')" :inline-message="hasError('province_from_id')">
+                                          <el-select v-model="formData.province_from_id" class="w-full"
+                                            placeholder="Chọn tỉnh/thành phố gửi đi" filterable
+                                            @change="changeProvince('province_from')"
+                                        >
+                                            <el-option v-for="item in provinces" :key="item.id" :label="item.name" :value="item.id" />
+                                        </el-select>
+                                    </el-form-item>
                                 </div>
-                                <div class="text-red-500 select_val hidden"></div>
-                            </div>
-                            <div class="w-full md:w-1/3 flex flex-col" data-select2-id="select2-data-293-g7qo">
-                                <span class="text-[#2C3F58] block mb-[8px]">Quận/ Huyện</span>
-                                <div class="w-full select2-stupid item-tariff h-[43px]" data-select2-id="select2-data-292-ca3w">
+                                <div class="w-full md:w-1/3 flex flex-col">
+                                    <el-form-item label="Quận/ Huyện" prop="district_from_id"
+                                        :error="getError('district_from_id')" :inline-message="hasError('district_from_id')">
+                                        <el-select v-model="formData.district_from_id" class="w-full"
+                                            placeholder="Chọn quận/huyện gửi đi" filterable
+                                        >
+                                            <el-option v-for="item in districtFrom" :key="item.id" :label="item.name" :value="item.id" />
+                                        </el-select>
+                                    </el-form-item>
                                 </div>
-                                <div class="text-red-500 select_val hidden"></div>
-                            </div>
-                            <div class="w-full md:w-1/3 flex flex-col">
-                                <span class="text-[#2C3F58] block mb-[8px]">Phường/ Xã</span>
-                                <div class="w-full select2-stupid item-tariff h-[43px]">
+                                <div class="w-full md:w-1/3 flex flex-col">
+                                    <el-form-item label="Địa chỉ" prop="address_from"
+                                        :error="getError('address_from')" :inline-message="hasError('address_from')">
+                                        <el-input type="textarea" v-model="formData.address_from" placeholder="Nhập địa chỉ cụ thể  (Số nhà, ngõ, thôn)" />
+                                    </el-form-item>
                                 </div>
-                                <div class="text-red-500 select_val"></div>
                             </div>
-                        </div>
-                        <div data-select2-id="select2-data-317-t1ik">
-                            <div class="tabs_inside_title flex items-center mb-[30px]">
-                                <div class="tabs_inside_title__active">Gửi hàng trong Việt Nam</div>
-                            </div>
-                            <div class="" data-select2-id="select2-data-316-so24">
-                                <div data-select2-id="select2-data-315-xhn1">
-                                    <span class="mb-[16px] inline-block Montserrat-Bold">
-                                        Gửi đến:<span class="text-red-500">*</span>
-                                    </span>
-                                    <div class="flex flex-col md:flex-row gap-[24px] items-between" data-select2-id="select2-data-314-ezwn">
-                                        <div class="w-full md:w-1/3 flex flex-col" data-select2-id="select2-data-328-09ko">
-                                            <span class="text-[#2C3F58] block mb-[8px]">Tỉnh/ Thành phố</span>
-                                            <div class="w-full select2-stupid item-tariff h-[43px]" data-select2-id="select2-data-327-limq">
-                                                <select id="dropdown-to-prov-tariff" name="to_province" class="name_select search-select w-full h-full select2-hidden-accessible" tabindex="-1" aria-hidden="true" data-select2-id="select2-data-dropdown-to-prov-tariff">
-                                                </select>
+                            <div data-select2-id="select2-data-317-t1ik">
+                                <div class="mt-[18px]">
+                                    <div data-select2-id="select2-data-315-xhn1">
+                                        <span class="mb-[16px] inline-block font-bold">
+                                            Gửi đến:<span class="text-red-500">*</span>
+                                        </span>
+                                        <div class="flex flex-col md:flex-row sm:gap-[24px] items-between" data-select2-id="select2-data-314-ezwn">
+                                            <div class="w-full md:w-1/3 flex flex-col" data-select2-id="select2-data-328-09ko">
+                                                <el-form-item label="Tỉnh/ Thành phố" prop="province_to_id"
+                                                    :error="getError('province_to_id')" :inline-message="hasError('province_to_id')">
+                                                    <el-select v-model="formData.province_to_id" class="w-full"
+                                                        placeholder="Chọn tỉnh/thành phố nhận hàng" filterable
+                                                        @change="changeProvince('province_to')"
+                                                    >
+                                                        <el-option v-for="item in provinces" :key="item.id" :label="item.name" :value="item.id" />
+                                                    </el-select>
+                                                </el-form-item>
                                             </div>
-                                            <div class="text-red-500 select_val"></div>
+                                            <div class="w-full md:w-1/3 flex flex-col">
+                                                <el-form-item label="Quận/ Huyện" prop="district_to_id"
+                                                    :error="getError('district_to_id')" :inline-message="hasError('district_to_id')">
+                                                    <el-select v-model="formData.district_to_id" class="w-full"
+                                                        placeholder="Chọn quận/huyện nhận hàng" filterable
+                                                    >
+                                                        <el-option v-for="item in districtTo" :key="item.id" :label="item.name" :value="item.id" />
+                                                    </el-select>
+                                                </el-form-item>
+                                            </div>
+                                            <div class="w-full md:w-1/3 flex flex-col">
+                                                <el-form-item label="Địa chỉ" prop="address_to"
+                                                    :error="getError('address_to')" :inline-message="hasError('address_to')">
+                                                    <el-input type="textarea" v-model="formData.address_to" placeholder="Nhập địa chỉ cụ thể  (Số nhà, ngõ, thôn)" />
+                                                </el-form-item>
+                                            </div>
                                         </div>
-                                        <div class="w-full md:w-1/3 flex flex-col">
-                                            <span class="text-[#2C3F58] block mb-[8px]">Quận/ Huyện</span>
-                                            <div class="w-full select2-stupid item-tariff h-[43px]">
-                                                <select id="dropdown-to-district-tariff" name="to_district" class="name_select search-select w-full h-full select2-hidden-accessible" tabindex="-1" aria-hidden="true" data-select2-id="select2-data-dropdown-to-district-tariff">
-                                                    <option value="" data-select2-id="select2-data-152-qew9">Quận/ Huyện</option>
-                                                </select><span class="select2 select2-container select2-container--material" dir="ltr" data-select2-id="select2-data-151-0fag" style="width: 345.337px;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-dropdown-to-district-tariff-container" aria-controls="select2-dropdown-to-district-tariff-container"><span class="select2-selection__rendered" id="select2-dropdown-to-district-tariff-container" role="textbox" aria-readonly="true" title="Quận/ Huyện">Quận/ Huyện</span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                                            </div>
-                                            <div class="text-red-500 select_val"></div>
-                                        </div>
-                                        <div class="w-full md:w-1/3 flex flex-col" data-select2-id="select2-data-313-5vuz">
-                                            <span class="text-[#2C3F58] block mb-[8px]">Phường/ Xã</span>
-                                            <div class="w-full select2-stupid item-tariff h-[43px]" data-select2-id="select2-data-312-6plo">
-                                                <select id="dropdown-to-ward-tariff" name="to_ward" class="name_select search-select w-full h-full select2-hidden-accessible" tabindex="-1" aria-hidden="true" data-select2-id="select2-data-dropdown-to-ward-tariff">
-                                                    <option value="" data-select2-id="select2-data-154-ifxk">Phường/ Xã</option>
-                                                </select><span class="select2 select2-container select2-container--material select2-container--below" dir="ltr" data-select2-id="select2-data-153-9cml" style="width: 345.337px;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-dropdown-to-ward-tariff-container" aria-controls="select2-dropdown-to-ward-tariff-container"><span class="select2-selection__rendered" id="select2-dropdown-to-ward-tariff-container" role="textbox" aria-readonly="true" title="Phường/ Xã">Phường/ Xã</span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                                            </div>
-                                            <div class="text-red-500 select_val"></div>
+                                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-[24px]">
+                                            <el-form-item label="Weight" prop="weight"
+                                                :error="getError('number')" :inline-message="hasError('number')">
+                                                <el-input type="number" v-model="formData.weight" placeholder="KG" />
+                                            </el-form-item>
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-[24px] mt-[48px]">
-                                        <div>
-                                            <span class="block mb-[8px] text-[#333438] Montserrat-Bold">
-                                                Weight<span class="text-red-500">*</span>
-                                            </span>
-                                            <div class="w-full item-tariff">
-                                                <input type="number" id="weight" name="weight" placeholder="KG" class="name_input border border-[#ced4da] rounded-[2px] pl-2  py-3  focus:outline-none h-[43px] w-full">
-                                            </div>
-                                            <div class="text-red-500 name_val"></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="text-center mt-[56px]">
-                            <button class="text-white bg-[#0082be] rounded-[2px] min-h-[55px] w-full font-bold">
-                                Tra cứu cước vận chuyển
-                            </button>
-                        </div>
+                            <div class="text-center sm:mt-[32px] mt-[18px]">
+                                <button type="button" @click="doSubmit()" class="text-white bg-[#0082be] rounded-[2px] sm:min-h-[55px] min-h-[45px] w-full font-bold">
+                                    Tra cứu cước vận chuyển
+                                </button>
+                            </div>
+                            <div v-if="orderCalculader.length > 0" class="mt-4">
+                                <DataTable
+                                    :fields="orderFields"
+                                    :items="orderCalculader" 
+                                    footer-center 
+                                    paginate-background
+                                >
+                                </DataTable>
+                            </div>
+                        </el-form>
                     </div>
                     <div v-show="tabSelect == 2" class="sm:p-7 p-[0px]">
-                        <el-form ref="form" label-position="top">
+                        <el-form ref="form-order" label-position="top">
                             <el-form-item label="Mã vận đơn" class="is-required">
                                 <el-input type="text" v-model="orderFilter.order_code" placeholder="Ví dụ: 841000072647,840000598444" />
                             </el-form-item>
@@ -510,9 +523,11 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/User/UserLayout.vue';
 import DataTable from '@/Components/DataTable.vue'
+import form from '@/Mixins/form'
 
 export default {
     components: { Head, Link, AppLayout, DataTable },
+    mixins: [form],
     data: function () {
         return {
             loadingForm: false,
@@ -535,10 +550,106 @@ export default {
                 { key: 'status_text', label: 'Trạng thái', minWidth: 180, align: 'center', headerAlign: 'center' },
                 { key: 'created_at', label: 'Ngày tạo', width: 140, align: 'center', headerAlign: 'center' },
             ],
-            itemSearch: null
+            itemSearch: null,
+            formData: {
+                province_from_id: null,
+                district_from_id: null,
+                address_from: null,
+                province_to_id: null,
+                district_to_id: null,
+                address_to: null,
+                weight: null,
+            },
+            orderRules: {
+                province_from_id: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                district_from_id: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                address_from: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                province_to_id: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                district_to_id: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                address_to: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+                weight: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+            },
+            orderFields: [
+                { key: 'address_from', label: 'Điểm gửi hàng', minWidth: 150, align: 'left', headerAlign: 'left' },
+                { key: 'address_to', label: 'Điểm nhận hàng', minWidth: 150, align: 'left', headerAlign: 'left' },
+                { key: 'weight', label: 'Khối lượng', width: 100, align: 'center', headerAlign: 'center' },
+                { key: 'sum_price', label: 'Thành tiền', width: 120, align: 'left', headerAlign: 'left' },
+            ],
+            provinces: [],
+            districtFrom: [],
+            districtTo: [],
+            orderCalculader: [],
         }
     },
+    created() {
+        this.fetchData()
+    },
     methods: {
+        fetchData() {
+            axios.get(route('user.region.province-all'))
+                .then(({ data }) => {
+                    this.provinces = data.data
+                })
+        },
+        changeProvince(type) {
+            if (type == 'province_from') {
+                axios.get(route('user.region.get-district', this.formData.province_from_id))
+                    .then(({ data }) => {
+                        this.districtFrom = data.data
+                    })
+            } else {
+                axios.get(route('user.region.get-district', this.formData.province_to_id))
+                    .then(({ data }) => {
+                        this.districtTo = data.data
+                    })
+            }
+        },
+        async submit() {
+            let self = this
+            if (this.formData.district_from_id && this.formData.district_to_id) {
+                let districtFromName = self.districtFrom.find(item => item.id == self.formData.district_from_id)?.name
+                let provinceFromName = self.provinces.find(item => item.id == self.formData.province_from_id)?.name
+                let districtToName = self.districtTo.find(item => item.id == self.formData.district_to_id)?.name
+                let provinceToName = self.provinces.find(item => item.id == self.formData.province_to_id)?.name
+                let origin = `${self.formData.address_from}, ${districtFromName}, ${provinceFromName}, Việt Nam`
+                let destination = `${self.formData.address_to}, ${districtToName}, ${provinceToName}, Việt Nam`
+
+                var directionsService = new google.maps.DirectionsService();
+    
+                directionsService.route({
+                        origin: origin,
+                        destination: destination,
+                        travelMode: 'WALKING'
+                    },
+                    function(response, status) {
+                        if (status === 'OK') {
+                            var route = response.routes[0];
+                            var distance = 0;
+    
+                            for (var i = 0; i < route.legs.length; i++) {
+                                distance += route.legs[i].distance.value;
+                            }
+                            distance = distance / 1000
+
+                            const formatter = new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND'
+                            });
+                            const formattedMoney = formatter.format(Number(self.formData.weight)*distance*1500);
+    
+                            self.orderCalculader.push({
+                                address_from: origin,
+                                address_to: destination,
+                                weight: self.formData.weight,
+                                sum_price: formattedMoney
+                            })
+                        } else {
+                            window.alert('Directions request failed due to ' + status);
+                        }
+                    }
+                );
+            }
+        },
         searchOrder() {
             axios.get(route('user.order.search', this.orderFilter))
                 .then(({ data }) => {

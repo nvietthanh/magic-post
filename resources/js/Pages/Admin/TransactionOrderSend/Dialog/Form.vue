@@ -66,7 +66,7 @@
                             </el-form-item>
                             <el-form-item label="Huyện" class="w-[200px] mt-4" prop="delivery_district_id"
                                 :error="getError('delivery_district_id')" :inline-message="hasError('delivery_district_id')">
-                                <el-select v-model="formData.delivery_district_id" class="w-full" placeholder="Chọn huyện" filterable>
+                                <el-select v-model="formData.delivery_district_id" class="w-full" placeholder="Chọn huyện" filterable @change="calculaderFar">
                                     <el-option 
                                         v-for="item in districts" 
                                         :key="item.id" :label="item.name" :value="item.id" 
@@ -76,7 +76,7 @@
                         </div>
                         <el-form-item label="Địa chỉ" prop="address" class="w-full"
                             :error="getError('address')" :inline-message="hasError('address')">
-                            <el-input type="textarea" v-model="formData.address" :rows="4"
+                            <el-input type="textarea" v-model="formData.address" :rows="4" @change="calculaderFar"
                                 placeholder="Nhập địa chỉ cụ thể  (Số nhà, ngõ, thôn, xã/phường)" />
                         </el-form-item>
                     </div>
@@ -103,21 +103,25 @@
                     </div>
                     <div class="mt-[8px]">
                         <DataTable
-                        :fields="fields" :items="formData.products" 
-                        footer-center :tableHeight="250" :emtyDefault="true"
-                        paginate-background
-                    >
-                        <template #action="{ row }">
-                            <div class="flex justify-center gap-1">
-                                <el-button type="danger" @click="deleteProduct(row)"> 
-                                    Xóa bỏ
-                                </el-button>
-                                <el-button type="info" @click="editProduct(row)"> 
-                                    Sửa
-                                </el-button>
-                            </div>
-                        </template>
-                    </DataTable>
+                            :fields="fields" :items="formData.products" 
+                            footer-center :tableHeight="250" :emtyDefault="true"
+                            paginate-background
+                        >
+                            <template #action="{ row }">
+                                <div class="flex justify-center gap-1">
+                                    <el-button type="danger" @click="deleteProduct(row)"> 
+                                        Xóa bỏ
+                                    </el-button>
+                                    <el-button type="info" @click="editProduct(row)"> 
+                                        Sửa
+                                    </el-button>
+                                </div>
+                            </template>
+                        </DataTable>
+                    </div>
+                    <div class="mt-[12px] flex items-center gap-[32px]">
+                        <div class="font-bold text-lg">Thành tiền:</div>
+                        <div class="text-lg">{{ getSumPrice() }}</div>
                     </div>
                 </div>
             </el-form>
@@ -159,7 +163,7 @@ export default {
             districts: [],
             users: [],
             formData: {
-                type: '',
+                type: 1,
                 user_id: '',
                 full_name: '',
                 phone_number: '',
@@ -167,6 +171,7 @@ export default {
                 delivery_district_id: '',
                 address: '',
                 note: '',
+                far_number: 0,
                 guide: '',
                 products: []
             },
@@ -174,6 +179,7 @@ export default {
                 { key: 'name', label: 'Tên hàng', minWidth: 170, align: 'left', headerAlign: 'left' },
                 { key: 'quanlity', label: 'Số lượng', minWidth: 100, align: 'left', headerAlign: 'left' },
                 { key: 'price', label: 'Giá', minWidth: 140, align: 'left', headerAlign: 'left' },
+                { key: 'weight', label: 'Khối lượng', minWidth: 120, align: 'left', headerAlign: 'left' },
                 { key: 'note', label: 'Note', minWidth: 170, align: 'left', headerAlign: 'left' },
                 { key: 'action', label: 'Thao tác', width: 160, align: 'center', headerAlign: 'center', fixed: 'right' },
             ],
@@ -194,6 +200,7 @@ export default {
         isShowForm(val) {
             if (val == false) {
                 this.formData = {}
+                this.formData.type = 1
                 this.provinces = []
                 this.districts = []
                 this.$refs.form.resetFields()
@@ -221,6 +228,38 @@ export default {
                     })
             }
         },
+        calculaderFar() {
+            let self = this
+            if (this.formData.province_id && this.formData.delivery_district_id && this.formData.address) {
+                let districtToName = this.districts.find(item => item.id == this.formData.delivery_district_id)?.name
+                let provinceToName = this.provinces.find(item => item.id == this.formData.province_id)?.name
+                let destination = `${this.formData.address}, ${districtToName}, ${provinceToName}, Việt Nam`
+    
+                var directionsService = new google.maps.DirectionsService();
+    
+                directionsService.route({
+                        origin: this.$page?.props?.auth?.user.address_work,
+                        destination: destination,
+                        travelMode: 'WALKING'
+                    },
+                    function(response, status) {
+                        if (status === 'OK') {
+                            var route = response.routes[0];
+                            var distance = 0;
+    
+                            for (var i = 0; i < route.legs.length; i++) {
+                                distance += route.legs[i].distance.value;
+                            }
+                            self.formData.far_number = distance / 1000
+                        } else {
+                            window.alert('Directions request failed due to ' + status);
+                        }
+                    }
+                );
+            } else {
+                this.formData.far_number = 0
+            }
+        },
         async getUser() {
             this.users = []
             await axios.get(route('admin.api.user.get-all'))
@@ -240,6 +279,7 @@ export default {
             await this.getProvice()
             await this.getDistrict()
             await this.getUser()
+            this.calculaderFar()
             this.loading = false
         },
         changeProvince() {
@@ -250,10 +290,10 @@ export default {
             this.isShowForm = false
         },
         addProduct() {
-            this.$refs.productForm.open()
+            this.$refs.productForm.open(this.formData.type)
         },
         editProduct(row) {
-            this.$refs.productForm.open(row)
+            this.$refs.productForm.open(this.formData.type, row)
         },
         deleteProduct(row) {
             let productIndex = row.id
@@ -264,6 +304,7 @@ export default {
         },
         changeProduct(data) {
             let newProduct = { ...data }
+            newProduct.weight = Number(newProduct.weight)
             if (newProduct.id || newProduct.index) {
                 let productIndex = newProduct.id
                     ? this.formData.products.findIndex(c => c.id === newProduct.id)
@@ -275,6 +316,27 @@ export default {
                 this.formData.products.push(newProduct)
                 this.productIndex += 1
             }
+        },
+        getSumPrice() {
+            let sumPrice = 0
+            if (this.formData.products && this.formData.delivery_district_id && this.formData.address) {
+                for (let item of this.formData.products) {
+                    if (this.formData.type == 1) {
+                        item.sum_price = Number(item.quanlity)*2000*this.formData.far_number
+                    } else {
+                        item.sum_price = Number(item.quanlity)*Number(item.weight)*1000*this.formData.far_number
+                    }
+                }
+                for (let item of this.formData.products) {
+                    sumPrice += item.sum_price
+                }
+            }
+            const formatter = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            });
+    
+            return formatter.format(sumPrice);
         },
         async submit() {
             this.loadingForm = true

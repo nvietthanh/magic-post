@@ -45,9 +45,20 @@ class TransactionOrderSendResource extends JsonResource
             'status_number' => $getStatus['statusNumber'],
             'status_text' => $getStatus['statusText'],
             'status_process' => $getStatus['processText'],
+            'sum_price' => $this->getSumPrice($this->orderDetails),
             'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i'),
             'updated_at' => Carbon::parse($this->updated_at)->format('Y-m-d H:i'),
         ];
+    }
+
+    public function getSumPrice($orderDetail)
+    {
+        $sumPrice = 0;
+        foreach ($orderDetail as $order) {
+            $sumPrice += $order->sum_price;
+        }
+
+        return $sumPrice;
     }
 
     public function getGuide($guide)

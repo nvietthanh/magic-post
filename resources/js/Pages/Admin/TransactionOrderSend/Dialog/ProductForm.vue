@@ -25,6 +25,10 @@
                         <el-input type="number" v-model="formData.price" placeholder="Nhập giá tiền" />
                     </el-form-item>
                 </div>
+                <el-form-item label="Khối lượng" prop="weight"
+                    :error="getError('weight')" :inline-message="hasError('weight')">
+                    <el-input type="number" v-model="formData.weight" placeholder="Nhập khối lượng hàng" />
+                </el-form-item>
                 <el-form-item label="Chú thích" class="w-full" prop="note"
                     :error="getError('note')" :inline-message="hasError('note')">
                     <el-input type="textarea" v-model="formData.note" :rows="2" placeholder="Nhập chú thích (nếu có)" />
@@ -63,13 +67,16 @@ export default {
                 name: '',
                 quanlity: '',
                 price: '',
-                note: ''
+                note: '',
+                weight: ''
             },
             rule: {
                 name: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 quanlity: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
                 price: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
-            }
+                weight: { required: true, message: 'Trường này là bắt buộc', trigger: ['change'] },
+            },
+            type: ''
         }
     },
     watch: {
@@ -81,12 +88,12 @@ export default {
         }
     },
     methods: {
-        async open(data) {
+        async open(type, data) {
             this.isShowForm = true
             this.loading = true
+            this.type = type
             if (data) {
                 this.title = 'Cập nhật sản phẩm trong đơn hàng'
-                console.log(data)
                 this.formData = {...data}
             } else {
                 this.title = 'Thêm sản phẩm trong đơn hàng'   

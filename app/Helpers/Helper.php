@@ -52,9 +52,15 @@ if (!function_exists('get_basic_info')) {
             $role = $user->roles()->first()->role_code;
             if ($profile->transactionPoint) {
                 $districtId = $profile->transactionPoint->district_id;
+                $addressWork = $profile->transactionPoint->address;
+                $addressWork .= ', ' . $profile->transactionPoint->district->name;
+                $addressWork .= ', ' . $profile->transactionPoint->district->province->name;
             }
             if ($profile->concentratePoint) {
                 $districtId = $profile->concentratePoint->district_id;
+                $addressWork = $profile->concentratePoint->address;
+                $addressWork .= ', ' . $profile->concentratePoint->district->name;
+                $addressWork .= ', ' . $profile->concentratePoint->district->province->name;
             }
 
         }
@@ -68,7 +74,8 @@ if (!function_exists('get_basic_info')) {
             'full_name' => $profile->first_name . ' ' . $profile->last_name,
             'avatar' => get_avatar_url($profile),
             'role' => $role ?? null,
-            'district_id' => $districtId ?? null
+            'district_id' => $districtId ?? null,
+            'address_work' => $addressWork ?? null
         ];
     }
 }

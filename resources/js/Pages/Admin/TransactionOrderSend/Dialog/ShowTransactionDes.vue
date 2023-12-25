@@ -67,11 +67,15 @@
                 </div>
                 <div class="mt-[8px]">
                     <DataTable
-                    :fields="fields" :items="formData.products" 
-                    footer-center :tableHeight="250" :emtyDefault="true"
-                    paginate-background
-                >
-                </DataTable>
+                        :fields="fields" :items="formData.products" 
+                        footer-center :tableHeight="250" :emtyDefault="true"
+                        paginate-background
+                    >
+                    </DataTable>
+                </div>
+                <div class="mt-[12px] flex items-center gap-[32px]">
+                    <div class="font-bold">Thành tiền:</div>
+                    <div>{{ getSumPrice(formData.sum_price) }}</div>
                 </div>
             </div>
             <el-form ref="form" :model="formDataChange" label-position="top">
@@ -128,6 +132,7 @@ export default {
                 { key: 'name', label: 'Tên hàng', minWidth: 170, align: 'left', headerAlign: 'left' },
                 { key: 'quanlity', label: 'Số lượng', minWidth: 100, align: 'left', headerAlign: 'left' },
                 { key: 'price', label: 'Giá', minWidth: 140, align: 'left', headerAlign: 'left' },
+                { key: 'weight', label: 'Khối lượng', minWidth: 120, align: 'left', headerAlign: 'left' },
                 { key: 'note', label: 'Note', minWidth: 170, align: 'left', headerAlign: 'left' },
             ],
             paginate: [],
@@ -163,6 +168,14 @@ export default {
         },
         cancelForm() {
             this.isShowForm = false
+        },
+        getSumPrice(sumPrice) {
+            const formatter = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            });
+    
+            return formatter.format(sumPrice);
         },
         submit() {
             this.loadingForm = true

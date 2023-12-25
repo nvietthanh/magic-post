@@ -35,6 +35,8 @@ class OrderSendStoreRequest extends FormRequest
             'products.*.quanlity' => 'required',
             'products.*.price' => 'required',
             'products.*.note' => 'nullable|string|max:255',             
+            'products.*.weight' => 'required|numeric',             
+            'products.*.sum_price' => 'required',             
         ];
     }
     public function messages()

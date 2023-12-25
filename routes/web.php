@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\User\OrderController as UserOrderController;
 use App\Http\Controllers\User\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\User\Auth\PasswordController;
@@ -73,6 +74,10 @@ Route::as('user.')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     Route::get('/order-search', [UserOrderController::class, 'search'])->name('order.search');
+
+    // get region of point
+    Route::get('/get-province-all', [RegionController::class, 'getProvinceAll'])->name('region.province-all');
+    Route::get('/get-district-all/{id}', [RegionController::class, 'getDistrict'])->name('region.get-district');
 });
 
 Route::middleware('auth')->as('user.')->group(function () {

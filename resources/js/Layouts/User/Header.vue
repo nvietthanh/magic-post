@@ -1,4 +1,4 @@
-i,8<template>
+<template>
     <div id="header" class="fixed top-0 left-[0px] right-[0px] bg-[#0082be] text-[#fff] border-b-[2px] border-b-[#fff]">
         <div class="h-[58px] md:h-[60px]">
             <div class="header-main">
@@ -10,7 +10,7 @@ i,8<template>
                             </div>
                         </div>
                     </Link>
-                    <div class="ml-3 flex items-center mr-5">
+                    <div class="ml-3 flex items-center justify-end">
                         <template v-if="!user">
                             <div class="flex gap-4">
                                 <Link :href="route('auth.login')">
