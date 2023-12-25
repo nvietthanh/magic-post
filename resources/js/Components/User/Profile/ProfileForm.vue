@@ -8,8 +8,8 @@
             <div class="text-center font-bold text-[18px]">{{ title }}</div>
         </template>
         <div class="my-[12px]">
-            <div v-show="!isChangeProfile" class="flex gap-[32px]">
-                <div>
+            <div v-show="!isChangeProfile" class="sm:flex gap-[32px]">
+                <div class="sm:block flex justify-center mb-[18px]">
                     <el-image :src="user.avatar_default" class="w-[150px] h-[150px]"/>
                 </div>
                 <div class="w-full flex flex-col gap-2">
@@ -24,7 +24,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div class="w-full flex gap-2">
                             <div class="font-bold">Họ tên: </div>
-                            <div>{{ user.full_name }}</div>
+                            <div class="flex-1">{{ user.full_name }}</div>
                         </div>
                         <div class="w-full flex gap-2">
                             <div class="font-bold">Giới tính: </div>
@@ -33,8 +33,8 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="w-full flex gap-2">
-                            <div class="font-bold">Số điện thoại: </div>
-                            <div>{{ user.phone }}</div>
+                            <div class="font-bold min-w-[100px]">Số điện thoại: </div>
+                            <div class="flex-1">{{ user.phone }}</div>
                         </div>
                         <div class="w-full flex gap-2">
                             <div class="font-bold">Ngày sinh: </div>

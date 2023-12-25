@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\AdminRoleEnum;
 use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ConcentrateOrderReceiveResource;
@@ -22,17 +23,19 @@ class ConcentrateOrderReceiveController extends Controller
         $currentUser = auth()->user();
 
         $orders = Order::query()
-            ->whereHas('orderStatuses', function ($query) use ($currentUser) {
-                $query->where(function ($subQuery) use ($currentUser) {
-                    $subQuery->Where(function ($builder) use ($currentUser) {
-                            $builder->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND)
+            ->when(!$currentUser->hasRoleCode(AdminRoleEnum::MASTER_ADMIN), function ($subBuilder) use ($currentUser) {
+                $subBuilder->whereHas('orderStatuses', function ($query) use ($currentUser) {
+                    $query->where(function ($subQuery) use ($currentUser) {
+                        $subQuery->Where(function ($builder) use ($currentUser) {
+                                $builder->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_SEND)
+                                    ->where('receive_point_id', $currentUser->adminProfile->concentrate_point_id);
+                            });
+                    });
+                    $query->orWhere(function ($subQuery) use ($currentUser) {
+                        $subQuery->where(function ($builder) use ($currentUser) {
+                            $builder->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_SEND)
                                 ->where('receive_point_id', $currentUser->adminProfile->concentrate_point_id);
                         });
-                });
-                $query->orWhere(function ($subQuery) use ($currentUser) {
-                    $subQuery->where(function ($builder) use ($currentUser) {
-                        $builder->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_DESTINATION_SEND)
-                            ->where('receive_point_id', $currentUser->adminProfile->concentrate_point_id);
                     });
                 });
             })

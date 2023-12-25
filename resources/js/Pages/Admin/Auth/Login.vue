@@ -64,7 +64,12 @@ export default {
             if (status == 200) {
                 this.$message({ message: data?.message, type: status === 200 ? 'success' : 'error' })
                 this.loadingForm = false
-                this.$inertia.visit(route('admin.dashboard'))
+                if (data.data.role == 'master-admin') {
+                    this.$inertia.visit(route('admin.dashboard'))
+                } else {
+                    this.$inertia.visit(route('admin.user.index'))
+
+                }
             }
         },
     }

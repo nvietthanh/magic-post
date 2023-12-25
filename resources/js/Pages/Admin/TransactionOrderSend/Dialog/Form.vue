@@ -163,7 +163,7 @@ export default {
             districts: [],
             users: [],
             formData: {
-                type: 1,
+                type: "1",
                 user_id: '',
                 full_name: '',
                 phone_number: '',
@@ -200,7 +200,7 @@ export default {
         isShowForm(val) {
             if (val == false) {
                 this.formData = {}
-                this.formData.type = 1
+                this.formData.type = "1"
                 this.provinces = []
                 this.districts = []
                 this.$refs.form.resetFields()

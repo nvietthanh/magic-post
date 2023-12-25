@@ -44,7 +44,9 @@ class AuthenticatedSessionController extends Controller
 
         Auth::guard('admin')->loginUsingId($user->id, $request->remember ? true : false);
 
-        return $this->sendSuccessResponse([], 'Đăng nhập thành công');
+        return $this->sendSuccessResponse([
+            'role' => auth('admin')->user()->roles()->first()->role_code
+        ], 'Đăng nhập thành công');
     }
 
     /**
