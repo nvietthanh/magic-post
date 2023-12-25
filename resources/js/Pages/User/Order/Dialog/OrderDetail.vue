@@ -78,6 +78,10 @@
                         >
                         </DataTable>
                     </div>
+                    <div class="mt-[12px] flex items-center gap-[32px]">
+                        <div class="font-bold ">Thành tiền:</div>
+                        <div>{{ getSumPrice(formData.sum_price) }}</div>
+                    </div>
                 </div>
             </template>
             <template v-else>
@@ -115,14 +119,11 @@ export default {
             tabSelect: 1,
             formData: {},
             fields: [
-                { key: 'order_code', label: 'Mã vận đơn', width: 100, align: 'left', headerAlign: 'left' },
-                { key: 'full_name', label: 'Người nhận', minWidth: 100, align: 'left', headerAlign: 'left' },
-                { key: 'phone_number', label: 'Số điện thoại', width: 120, align: 'left', headerAlign: 'left' },
-                { key: 'receive_district_name', label: 'Điểm gửi', width: 190, align: 'left', headerAlign: 'left' },
-                { key: 'delivery_district_name', label: 'Điểm nhận', width: 190, align: 'left', headerAlign: 'left' },
-                { key: 'status_text', label: 'Trạng thái', minWidth: 180, align: 'center', headerAlign: 'center' },
-                { key: 'created_at', label: 'Ngày tạo', width: 140, align: 'center', headerAlign: 'center' },
-                { key: 'action', label: 'Thao tác', width: 100, align: 'center', headerAlign: 'center', fixed: 'right' },
+                { key: 'name', label: 'Tên hàng', minWidth: 170, align: 'left', headerAlign: 'left' },
+                { key: 'quanlity', label: 'Số lượng', minWidth: 100, align: 'left', headerAlign: 'left' },
+                { key: 'price', label: 'Giá', minWidth: 140, align: 'left', headerAlign: 'left' },
+                { key: 'weight', label: 'Khối lượng', minWidth: 120, align: 'left', headerAlign: 'left' },
+                { key: 'note', label: 'Note', minWidth: 170, align: 'left', headerAlign: 'left' },
             ],
             paginate: [],
         }
@@ -143,7 +144,15 @@ export default {
         },
         cancelForm() {
             this.isShowForm = false
-        }
+        },
+        getSumPrice(sumPrice) {
+            const formatter = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            });
+    
+            return formatter.format(sumPrice);
+        },
     }
 }
 </script>
@@ -156,7 +165,7 @@ export default {
     width: 900px;
     margin-top: 30px;
 }
-@media only screen and (max-width: 576px) {
+@media only screen and (max-width: 876px) {
     #admin-account-show {
         width: calc(100% - 16px);
     }

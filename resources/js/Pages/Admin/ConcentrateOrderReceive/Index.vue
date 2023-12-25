@@ -54,7 +54,7 @@
                         <div>{{ row?.status_text }}</div>
                         <div>({{ row?.status_process }})</div>
                     </template>
-                    <template #action="{ row }">
+                    <template v-if="!checkRoles(['master-admin'])" #action="{ row }">
                         <div class="flex justify-center gap-1">
                             <el-button type="info" @click="showDetail(row)">Chi tiết</el-button>
                         </div>

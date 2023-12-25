@@ -5,7 +5,7 @@
             <div class="flex h-[56px] items-center w-full px-2 bg-[white] border-b-[2px]">
                 <h1 class="bold text-[20px] font-bold">Danh sách đơn gửi đi</h1>
                 <div class="flex float-right ml-auto">
-                    <el-button class="text-white" color="#0082BE" @click="openCreateForm">
+                    <el-button v-if="!checkRoles(['master-admin'])" class="text-white" color="#0082BE" @click="openCreateForm">
                         Thêm mới
                     </el-button>
                 </div>
@@ -59,7 +59,7 @@
                         <div>{{ row?.status_text }}</div>
                         <div>({{ row?.status_process }})</div>
                     </template>
-                    <template #action="{ row }">
+                    <template v-if="!checkRoles(['master-admin'])" #action="{ row }">
                         <div v-if="row?.status_number == 0">
                             <el-button v-if="checkHidden(row)" type="danger" @click="openDeleteItem(row)">Xóa bỏ</el-button>
                             <el-button v-if="checkHidden(row)" type="success" @click="openEditForm(row)">Sửa</el-button>

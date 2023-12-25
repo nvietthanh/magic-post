@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\AdminRoleEnum;
 use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderSendStoreRequest;
@@ -24,17 +25,19 @@ class TransactionOrderSendController extends Controller
         $currentUser = auth()->user();
 
         $orders = Order::query()
-            ->whereHas('orderStatuses', function ($builder) use ($currentUser) {
-                $builder->where(function ($query) use ($currentUser) {
-                    $query->where(function ($subQuery) use ($currentUser) {
-                        $subQuery->where('type', OrderStatusEnum::PENDING_APPROVAL)
-                            ->where('receive_point_id', $currentUser->adminProfile->transaction_point_id);
+            ->when(!$currentUser->hasRoleCode(AdminRoleEnum::MASTER_ADMIN), function ($subBuilder) use ($currentUser) {
+                $subBuilder->whereHas('orderStatuses', function ($builder) use ($currentUser) {
+                    $builder->where(function ($query) use ($currentUser) {
+                        $query->where(function ($subQuery) use ($currentUser) {
+                            $subQuery->where('type', OrderStatusEnum::PENDING_APPROVAL)
+                                ->where('receive_point_id', $currentUser->adminProfile->transaction_point_id);
+                        });
                     });
-                });
-                $builder->orWhere(function ($query) use ($currentUser) {
-                    $query->where(function ($subQuery) use ($currentUser) {
-                        $subQuery->where('type', OrderStatusEnum::TRANSIT_TO_TRANSACTION_DESTINATION_RECEIVE)
-                            ->where('receive_point_id', $currentUser->adminProfile->transaction_point_id);
+                    $builder->orWhere(function ($query) use ($currentUser) {
+                        $query->where(function ($subQuery) use ($currentUser) {
+                            $subQuery->where('type', OrderStatusEnum::TRANSIT_TO_TRANSACTION_DESTINATION_RECEIVE)
+                                ->where('receive_point_id', $currentUser->adminProfile->transaction_point_id);
+                        });
                     });
                 });
             })

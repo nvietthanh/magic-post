@@ -18,7 +18,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->string('name');
             $table->integer('quanlity')->default(0);
-            $table->float('price')->default(0);
+            $table->bigInteger('price')->default(0);
             $table->string('note')->nullable();
             $table->timestamps();
         });
