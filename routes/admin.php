@@ -39,19 +39,25 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
     Route::get('/user/{id}', [UserController::class, 'show'])->name('user.show');
 
-    Route::get('/transaction-point', [TransactionPointController::class, 'index'])->name('transaction-point.index');
+    Route::middleware(['checkRole:master-admin'])->group(function () {
+        Route::get('/transaction-point', [TransactionPointController::class, 'index'])->name('transaction-point.index');
+    
+        Route::get('/concentrate-point', [ConcentratePointController::class, 'index'])->name('concentrate-point.index');
+    });
 
-    Route::get('/concentrate-point', [ConcentratePointController::class, 'index'])->name('concentrate-point.index');
+    Route::middleware(['checkRole:master-admin,head-of-transaction-admin,manager-of-transaction-admin'])->group(function () {
+        Route::get('/transaction-order-send', [TransactionOrderSendController::class, 'index'])
+            ->name('transaction-order-send.index');
+        Route::get('/transaction-order-receive', [TransactionOrderReceiveController::class, 'index'])
+            ->name('transaction-order-receive.index');
+    });
 
-    Route::get('/transaction-order-send', [TransactionOrderSendController::class, 'index'])
-        ->name('transaction-order-send.index');
-    Route::get('/transaction-order-receive', [TransactionOrderReceiveController::class, 'index'])
-        ->name('transaction-order-receive.index');
-
-    Route::get('/concentrate-order-send', [ConcentrateOrderSendController::class, 'index'])
-        ->name('concentrate-order-send.index');
-    Route::get('/concentrate-order-receive', [ConcentrateOrderReceiveController::class, 'index'])
-        ->name('concentrate-order-receive.index');
+    Route::middleware(['checkRole:master-admin,head-of-concentrate-admin,manager-of-concentrate-admin'])->group(function () {
+        Route::get('/concentrate-order-send', [ConcentrateOrderSendController::class, 'index'])
+            ->name('concentrate-order-send.index');
+        Route::get('/concentrate-order-receive', [ConcentrateOrderReceiveController::class, 'index'])
+            ->name('concentrate-order-receive.index');
+    });
 });
 
 # api admin
@@ -65,7 +71,7 @@ Route::middleware(['auth:admin'])->as('api.')->prefix('api/')->group(function ()
     Route::post('/profile', [ProfileController::class, 'updateProfile'])->name('update-profile');
 
     // dashboard
-    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'getChartOrder'])->name('dashboard');
 
     // crud account
     Route::apiResource('/account', ApiAdminAccountController::class);
@@ -75,15 +81,22 @@ Route::middleware(['auth:admin'])->as('api.')->prefix('api/')->group(function ()
     Route::get('/user/{id}', [ApiUserController::class, 'show'])->name('user.show');
     Route::get('/get-all-user', [ApiUserController::class, 'getAll'])->name('user.get-all');
 
-    // crud transaction point
-    Route::apiResource('/transaction-point', ApiTransactionPointController::class)->names('transactioin-point');
+    Route::middleware(['checkRole:master-admin'])->group(function () {
+        // crud transaction point
+        Route::apiResource('/transaction-point', ApiTransactionPointController::class)->names('transactioin-point');
+        Route::get('get-all-transaction-point', [ApiTransactionPointController::class, 'getAll'])
+            ->name('transactioin-point.get-all');
+    
+        // crud concentrate point
+        Route::apiResource('/concentrate-point', ApiConcentratePointController::class);
+        Route::get('get-all-concentrate-point', [ApiConcentratePointController::class, 'getAll'])
+            ->name('concentrate-point.get-all');
+    });
+
     Route::get('/get-district-transaction-point/{province_id}', [ApiTransactionPointController::class, 'getDistrict'])
         ->name('transaction-point.get-district');
     Route::get('/get-admin-transaction-point', [ApiTransactionPointController::class, 'getTransactionAdmin'])
         ->name('transaction-point.get-admin');
-
-    // crud transaction point
-    Route::apiResource('/concentrate-point', ApiConcentratePointController::class);
     Route::get('/get-district-concentrate-point/{province_id}', [ApiConcentratePointController::class, 'getDistrict'])
         ->name('concentrate-point.get-district');
     Route::get('/get-admin-concentrate-point', [ApiConcentratePointController::class, 'getConcentrateAdmin'])
@@ -93,35 +106,39 @@ Route::middleware(['auth:admin'])->as('api.')->prefix('api/')->group(function ()
     Route::get('/get-province-all', [RegionController::class, 'getProvinceAll'])->name('region.province-all');
     Route::get('/get-district-all/{id}', [RegionController::class, 'getDistrict'])->name('region.get-district');
 
-    // crud transaction order send
-    Route::apiResource('/transaction-order-send', ApiTransactionOrderSendController::class);
-    Route::get('/get-concentrate-transaction-order/{province_id}', [ApiTransactionOrderSendController::class, 'getConcentratePoint'])
-        ->name('transaction-order-send.get-concentrate');
-    Route::get('/change-peding-transaction-order-send/{id}', [ApiTransactionOrderSendController::class, 'changeTransactionStatus'])
-        ->name('transaction-order-send.change-transaction-status');
-    Route::get('/change-status-transaction-des-order-send/{id}', [ApiTransactionOrderSendController::class, 'changeTransactionDesStatus'])
-        ->name('transaction-order-send.change-transaction-des-send');
+    Route::middleware(['checkRole:master-admin,head-of-transaction-admin,manager-of-transaction-admin'])->group(function () {
+        // crud transaction order send
+        Route::apiResource('/transaction-order-send', ApiTransactionOrderSendController::class);
+        Route::get('/get-concentrate-transaction-order/{province_id}', [ApiTransactionOrderSendController::class, 'getConcentratePoint'])
+            ->name('transaction-order-send.get-concentrate');
+        Route::get('/change-peding-transaction-order-send/{id}', [ApiTransactionOrderSendController::class, 'changeTransactionStatus'])
+            ->name('transaction-order-send.change-transaction-status');
+        Route::get('/change-status-transaction-des-order-send/{id}', [ApiTransactionOrderSendController::class, 'changeTransactionDesStatus'])
+            ->name('transaction-order-send.change-transaction-des-send');
 
-    // crud transaction order receive
-    Route::apiResource('/transaction-order-receive', ApiTransactionOrderReceiveController::class);
-    Route::get('/change-status-transaction-order-receive/{id}', [ApiTransactionOrderReceiveController::class, 'changeTransactionStatus'])
-        ->name('transaction-order-receive.change-transaction-receive');
+        // crud transaction order receive
+        Route::apiResource('/transaction-order-receive', ApiTransactionOrderReceiveController::class);
+        Route::get('/change-status-transaction-order-receive/{id}', [ApiTransactionOrderReceiveController::class, 'changeTransactionStatus'])
+            ->name('transaction-order-receive.change-transaction-receive');
+    });
 
-    // crud concentrate order send
-    Route::get('/concentrate-order-send', [ApiConcentrateOrderSendController::class, 'index'])
-        ->name('concentrate-order-send.index');
-    Route::get('/get-concentrate-in-concentrate-order-send/{province_id}', [ApiConcentrateOrderSendController::class, 'getConcentratePoint'])
-        ->name('concentrate-order-send.get-concentrate');
-    Route::get('/change-status-concentrate-order-send/{id}', [ApiConcentrateOrderSendController::class, 'changeConcentrateStatus'])
-        ->name('concentrate-order-send.change-concentrate-send');
-    Route::get('/change-status-concentrate-des-order-send/{id}', [ApiConcentrateOrderSendController::class, 'changeConcentrateDesStatus'])
-        ->name('concentrate-order-send.change-concentrate-des-send');
+    Route::middleware(['checkRole:master-admin,head-of-concentrate-admin,manager-of-concentrate-admin'])->group(function () {
+        // crud concentrate order send
+        Route::get('/concentrate-order-send', [ApiConcentrateOrderSendController::class, 'index'])
+            ->name('concentrate-order-send.index');
+        Route::get('/get-concentrate-in-concentrate-order-send/{province_id}', [ApiConcentrateOrderSendController::class, 'getConcentratePoint'])
+            ->name('concentrate-order-send.get-concentrate');
+        Route::get('/change-status-concentrate-order-send/{id}', [ApiConcentrateOrderSendController::class, 'changeConcentrateStatus'])
+            ->name('concentrate-order-send.change-concentrate-send');
+        Route::get('/change-status-concentrate-des-order-send/{id}', [ApiConcentrateOrderSendController::class, 'changeConcentrateDesStatus'])
+            ->name('concentrate-order-send.change-concentrate-des-send');
 
-    // crud concentrate order receive
-    Route::get('/concentrate-order-receive', [ApiConcentrateOrderReceiveController::class, 'index'])
-        ->name('concentrate-order-receive.index');
-    Route::get('/change-status-concentrate-order-receive/{id}', [ApiConcentrateOrderReceiveController::class, 'changeConcentrateStatus'])
-        ->name('concentrate-order-receive.change-concentrate-receive');
-    Route::get('/change-status-concentrate-des-order-receive/{id}', [ApiConcentrateOrderReceiveController::class, 'changeConcentrateDesStatus'])
-        ->name('concentrate-order-receive.change-concentrate-des-receive');
+        // crud concentrate order receive
+        Route::get('/concentrate-order-receive', [ApiConcentrateOrderReceiveController::class, 'index'])
+            ->name('concentrate-order-receive.index');
+        Route::get('/change-status-concentrate-order-receive/{id}', [ApiConcentrateOrderReceiveController::class, 'changeConcentrateStatus'])
+            ->name('concentrate-order-receive.change-concentrate-receive');
+        Route::get('/change-status-concentrate-des-order-receive/{id}', [ApiConcentrateOrderReceiveController::class, 'changeConcentrateDesStatus'])
+            ->name('concentrate-order-receive.change-concentrate-des-receive');
+        });
 });

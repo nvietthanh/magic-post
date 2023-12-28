@@ -10,7 +10,6 @@ class HomeController extends Controller
 {
     public function dashboard()
     {
-        return redirect()->route('admin.transaction-point.index');
-        return Inertia::render('Admin/Dashboard');
+        return Inertia::render('Admin/Dashboard/Index');
     }
 }

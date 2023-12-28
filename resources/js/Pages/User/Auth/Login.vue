@@ -17,15 +17,12 @@
                                 show-password/>
                         </el-form-item>
                         <div class="mt-[18px] mb-[32px] flex justify-between">
-                            <Link class="text-[blue]">
-                                Quên mật khẩu?
-                            </Link>
                             <Link :href="route('auth.register')" class="text-[blue]">
                                 Đăng ký tài khoản
                             </Link>
                         </div>
                         <div class="flex justify-center">
-                            <el-button type="primary" :loading="loadingForm" @click="doSubmit">
+                            <el-button type="primary" color="#0082BE" :loading="loadingForm" @click="doSubmit">
                                 Đăng nhập
                             </el-button>
                         </div>

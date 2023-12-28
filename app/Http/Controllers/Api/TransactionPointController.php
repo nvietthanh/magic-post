@@ -34,6 +34,7 @@ class TransactionPointController extends Controller
                     $subQuery->where('province_id', $provinceFilter);
                 });
             })
+            ->latest()
             ->paginate(10);
 
         return TransactionPointResource::collection($transactionPoints);
@@ -161,5 +162,12 @@ class TransactionPointController extends Controller
                 'head_admins' => $headAdmins
             ]
         ]);
+    }
+
+    public function getAll()
+    {
+        $transactionPoints = TransactionPoint::all();
+
+        return TransactionPointResource::collection($transactionPoints);
     }
 }

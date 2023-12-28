@@ -29,64 +29,74 @@ final class OrderStatusEnum extends Enum
 
     public const All = [
         [
-            'label' => 'Chờ duyệt đơn hàng', 
+            'label' => 'Chờ duyệt đơn hàng',
             'value' => self::PENDING_APPROVAL,
             'text' => 'Chờ xác nhận',
-            'group' => 0
+            'group' => 0,
+            'slug' => 'cho_xac_nhan'
         ],
         [
             'label' => 'Chuyển tới điểm tập kết', 
             'value' => self::TRANSIT_TO_CONCENTRATE_SEND,
             'text' => 'Đang gửi đến điểm tập kết',
-            'group' => 1
+            'group' => 1,
+            'slug' => 'dang_gui_den_diem_tap_ket'
         ],
         [
             'label' => 'Chuyển tới điểm tập kết', 
             'value' => self::TRANSIT_TO_CONCENTRATE_RECEIVE,
             'text' => 'Đến điểm tập kết',
-            'group' => 1
+            'group' => 1,
+            'slug' => 'den_diem_tap_ket'
         ],
         [
             'label' => 'Chuyển tới điểm tập kết đích', 
             'value' => self::TRANSIT_TO_CONCENTRATE_DESTINATION_SEND,
             'text' => 'Đang gửi đến điểm tập kết đích',
-            'group' => 2
+            'group' => 2,
+            'slug' => 'dang_gui_den_diem_tap_ket_dich'
         ],
         [
             'label' => 'Chuyển tới điểm tập kết đích', 
             'value' => self::TRANSIT_TO_CONCENTRATE_DESTINATION_RECEIVE,
             'text' => 'Đã đến điểm tập kết đích',
-            'group' => 2
+            'group' => 2,
+            'slug' => 'da_den_diem_tap_ket_dich'
         ],
         [
             'label' => 'Chuyển tới điểm giao dịch đích',
             'value' => self::TRANSIT_TO_TRANSACTION_DESTINATION_SEND,
             'text' => 'Đang gửi đến điểm giao dịch đích',
-            'group' => 3
+            'group' => 3,
+            'slug' => 'dang_gui_den_diem_giao_dich_dich'
         ],
         [
             'label' => 'Chuyển tới điểm giao dịch đích',
             'value' => self::TRANSIT_TO_TRANSACTION_DESTINATION_RECEIVE,
             'text' => 'Đã đến điểm giao dịch đích',
-            'group' => 3
+            'group' => 3,
+            'slug' => 'da_den_diem_giao_dich_dich'
         ],
         [
             'label' => 'Chuyển tới khách hàng',
             'value' => self::DELIVERED_TO_CUSTOMER_SEND,
             'text' => 'Đang gửi đến khách hàng',
-            'group' => 4
+            'group' => 4,
+            'slug' => 'dang_gui_den_khach_hang'
         ],
         [
             'label' => 'Chuyển tới khách hàng',
             'value' => self::DELIVERED_TO_CUSTOMER_RECEIVE,
             'text' => 'Giao hàng thành công',
-            'group' => 4
+            'group' => 4,
+            'slug' => 'giao_hang_thanh_cong'
         ],
         [
             'label' => 'Chuyển trả lại điểm giao dịch', 
             'value' => self::RETURN_TO_TRANSACTION,
             'text' => 'Giao hàng thất bại',
-            'group' => 5
+            'group' => 5,
+            'slug' => 'giao_hang_that_bai'
         ],
     ];
 }

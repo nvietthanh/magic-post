@@ -68,6 +68,14 @@ class Admin extends Authenticatable
             ->exists();
     }
 
+    public function hasRoleCodes(array $roleCodes): bool
+    {
+        $this->loadMissing('roles');
+        return $this->roles()
+            ->whereIn('role_code', $roleCodes)
+            ->exists();
+    }
+
     public function adminProfile()
     {
         return $this->hasOne(AdminProfile::class, 'admin_id', 'id');
