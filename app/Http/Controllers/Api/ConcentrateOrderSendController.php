@@ -18,11 +18,23 @@ class ConcentrateOrderSendController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $currentUser = auth()->user();
+        $orderCode = $request->order_code;
+        $userFrom = $request->user_from;
+        $userTo = $request->user_to;
 
         $orders = Order::query()
+            ->when(isset($orderCode), function ($query) use ($orderCode) {
+                $query->where('order_code', 'like', '%' . $orderCode . '%');
+            })
+            ->when(isset($userFrom), function ($query) use ($userFrom) {
+                $query->whereIn('user_id', $userFrom);
+            })
+            ->when(isset($userTo), function ($query) use ($userTo) {
+                $query->where('full_name', 'like', '%' . $userTo . '%');
+            })
             ->whereHas('orderStatuses', function ($query) use ($currentUser) {
                 $query->where(function ($subQuery) use ($currentUser) {
                     $subQuery->where('type', OrderStatusEnum::TRANSIT_TO_CONCENTRATE_RECEIVE)
@@ -33,6 +45,7 @@ class ConcentrateOrderSendController extends Controller
                         ->where('receive_point_id', $currentUser->adminProfile->concentrate_point_id);
                 });
             })
+            ->latest()
             ->paginate(10);
 
         return ConcentrateOrderSendResource::collection($orders);

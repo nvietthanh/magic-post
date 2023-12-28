@@ -14,29 +14,23 @@
                 <div class="mx-[4px] mb-4">
                     <div class="grid grid-cols-4 gap-[32px] pb-[18px]">
                         <div class="flex flex-col">
-                            <span class="my-1 font-bold">Tên điểm</span>
-                            <el-input v-model="filter.name" class="w-full" placeholder="Nhập tên điểm"></el-input>
+                            <span class="my-1 font-bold">Mã vận đơn</span>
+                            <el-input v-model="filter.order_code" class="w-full" placeholder="Nhập mã vận đơn "></el-input>
                         </div>
                         <div class="flex flex-col">
-                            <span class="my-1 font-bold">Thành phố</span>
-                            <el-select v-model="filter.province_id" class="w-full"
-                                placeholder="Chọn thành phố" clearable
-                                @change="getDistrict"
+                            <span class="my-1 font-bold">Người gửi</span>
+                            <el-select v-model="filter.user_from" class="w-full"
+                                placeholder="Chọn người gửi" clearable multiple
                             >
                                 <el-option 
-                                    v-for="item in provinces" :key="item.id"
-                                    :label="item.name" :value="item.id" 
+                                    v-for="item in userFrom" :key="item.id"
+                                    :label="item.full_name" :value="item.id" 
                                 />
                             </el-select>
                         </div>
                         <div class="flex flex-col">
-                            <span class="my-1 font-bold">Huyện</span>
-                            <el-select v-model="filter.district_id" class="w-full" placeholder="Chọn huyện" clearable>
-                                <el-option 
-                                    v-for="item in districts" :key="item.id"
-                                    :label="item.name" :value="item.id" 
-                                />
-                            </el-select>
+                            <span class="my-1 font-bold">Người nhận</span>
+                            <el-input v-model="filter.user_to" class="w-full" placeholder="Nhập người nhận"></el-input>
                         </div>
                     </div>
                     <div class="flex w-full items-center justify-between">
@@ -69,11 +63,15 @@
                             <el-button type="info" @click="showDetailDes(row)">Chi tiết</el-button>
                         </div>
                     </template>
+                    <template v-else #action="{ row }">
+                        <el-button type="info" @click="showDetailMaster(row)">Chi tiết</el-button>
+                    </template>
                 </DataTable>
             </div>
             <FormInput ref="transactionForm" @change-data="fetchData" :guides="guides"/>
             <ShowTransaction ref="showTransaction" @change-data="fetchData"/>
             <ShowTransactionDes ref="showTransactionDes" @change-data="fetchData"/>
+            <ShowTransactionDetail ref="showDetail" />
         </template>
     </AppLayout>
 </template>
@@ -84,11 +82,12 @@ import DataTable from '@/Components/DataTable.vue'
 import FormInput from './Dialog/Form.vue'
 import ShowTransaction from './Dialog/ShowTransaction.vue'
 import ShowTransactionDes from './Dialog/ShowTransactionDes.vue'
+import ShowTransactionDetail from './Dialog/OrderDetail.vue'
 import { ElMessageBox } from 'element-plus'
 import { PENDING_APPROVAL } from '@/Store/Consts/oderStatus'
 
 export default {
-    components: { Head, Link, AppLayout, DataTable, FormInput, ShowTransaction, ShowTransactionDes },
+    components: { Head, Link, AppLayout, DataTable, FormInput, ShowTransaction, ShowTransactionDes, ShowTransactionDetail },
     props: {
         guides: {
             type: Object || Array,
@@ -100,8 +99,7 @@ export default {
             loadingForm: false,
             paginate: [],
             transactionOrders: [],
-            provinces: [],
-            districts: [],
+            userFrom: [],
             fields: [
                 { key: 'order_code', label: 'Mã vận đơn', width: 100, align: 'left', headerAlign: 'left' },
                 { key: 'user_name', label: 'Người gửi', minWidth: 150, align: 'left', headerAlign: 'left' },
@@ -114,33 +112,23 @@ export default {
                 { key: 'action', label: 'Thao tác', width: 280, align: 'center', headerAlign: 'center', fixed: 'right' },
             ],
             filter: {
-                name: '',
-                province_id: '',
-                district_id: '',
+                order_code: '',
+                user_from: '',
+                user_to: '',
                 page: 1,
             }
         }
     },
     created() {
         this.fetchData()
-        this.getProvice()
-        this.getDistrict()
+        this.getUser()
     },
     methods: {
-        getProvice() {
-            axios.get(route('admin.api.region.province-all'))
+        getUser() {
+            axios.get(route('admin.api.user.get-all'))
                 .then(({ data }) => {
-                    this.provinces = data.data
+                    this.userFrom = data.data
                 })
-        },
-        getDistrict() {
-            this.districts = []
-            if (this.filter.province_id) {
-                axios.get(route('admin.api.region.get-district', this.filter.province_id))
-                    .then(({ data }) => {
-                        this.districts = data.data
-                    })
-            }
         },
         fetchData() {
             this.loadingForm = true
@@ -180,6 +168,9 @@ export default {
         },
         showDetailDes(row) {
             this.$refs.showTransactionDes.open(row)
+        },
+        showDetailMaster(row) {
+            this.$refs.showDetail.open(row)
         },
         openDeleteItem(row) {
             ElMessageBox.confirm(

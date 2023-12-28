@@ -8,13 +8,12 @@ import {
 } from '@/Store/Consts/roles'
 
 export const MENUS = [
-    // {
-    //     label: 'Thống kê',
-    //     icon: 'bi-bar-chart-line',
-    //     route: 'admin.dashboard',
-    //     pathActive: 'dashboard',
-    //     roles: [MASTER_ADMIN]
-    // },
+    {
+        label: 'Thống kê',
+        icon: 'bi-bar-chart-line',
+        route: 'admin.dashboard',
+        pathActive: 'dashboard',
+    },
     {
         label: 'Quản lý điểm giao dịch',
         icon: 'bi-newspaper',

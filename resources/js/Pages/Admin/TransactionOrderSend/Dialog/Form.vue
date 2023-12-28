@@ -200,6 +200,7 @@ export default {
         isShowForm(val) {
             if (val == false) {
                 this.formData = {}
+                this.formData.products = []
                 this.formData.type = "1"
                 this.provinces = []
                 this.districts = []
@@ -303,6 +304,7 @@ export default {
             this.formData.products.splice(productIndex, 1);
         },
         changeProduct(data) {
+            console.log(data, this.formData )
             let newProduct = { ...data }
             newProduct.weight = Number(newProduct.weight)
             if (newProduct.id || newProduct.index) {

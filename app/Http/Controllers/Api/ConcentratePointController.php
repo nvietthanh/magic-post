@@ -34,6 +34,7 @@ class ConcentratePointController extends Controller
                     $subQuery->where('province_id', $provinceFilter);
                 });
             })
+            ->latest()
             ->paginate(10);
 
         return ConcentratePointResource::collection($concentratePoints);
@@ -150,5 +151,12 @@ class ConcentratePointController extends Controller
                 'head_admins' => $headAdmins
             ]
         ]);
+    }
+
+    public function getAll()
+    {
+        $concentratePoints = ConcentratePoint::all();
+
+        return ConcentratePointResource::collection($concentratePoints);
     }
 }

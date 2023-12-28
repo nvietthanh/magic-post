@@ -18,13 +18,8 @@
                             <el-input v-model="formData.password" type="password" placeholder="Nhập email đăng nhập" 
                                 show-password/>
                         </el-form-item>
-                        <div class="mt-[18px] mb-[32px]">
-                            <Link class="text-[blue]">
-                                Quên mật khẩu?
-                            </Link>
-                        </div>
-                        <div class="flex justify-center">
-                            <el-button type="primary" :loading="loadingForm" @click="doSubmit">
+                        <div class="flex justify-center mt-[32px]">
+                            <el-button type="primary" color="#0082BE" :loading="loadingForm" @click="doSubmit">
                                 Đăng nhập
                             </el-button>  
                         </div>
@@ -64,12 +59,7 @@ export default {
             if (status == 200) {
                 this.$message({ message: data?.message, type: status === 200 ? 'success' : 'error' })
                 this.loadingForm = false
-                if (data.data.role == 'master-admin') {
-                    this.$inertia.visit(route('admin.dashboard'))
-                } else {
-                    this.$inertia.visit(route('admin.user.index'))
-
-                }
+                this.$inertia.visit(route('admin.dashboard'))
             }
         },
     }
